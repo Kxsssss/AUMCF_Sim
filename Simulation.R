@@ -4,6 +4,7 @@ rm(list = ls())
 # Packages.
 library(optparse)
 library(MCC)
+library(parallel)
 
 # -----------------------------------------------------------------------------
 # Command line arguments.
@@ -163,7 +164,10 @@ Loop <- function(i) {
     return(out)
   }
 }
-sim <- lapply(seq_len(params$reps), Loop)
+
+numCores <- detectCores()
+#sim <- parallel::mclapply(1:5, Loop, mc.cores = numCores)
+sim <- parallel::mclapply(seq_len(params$reps), Loop, mc.cores = numCores)
 sim <- do.call(rbind, sim)
 
 # -----------------------------------------------------------------------------

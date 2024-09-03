@@ -18,11 +18,11 @@ This simulation study is used to evaluate the finite sample properties of AUMCF,
 - `BaseEvent0`: double, baseline arrival rate for the recurrent events in the reference arm $\lambda_1$.
 - `BaseEvent1`: double, baseline arrival rate for the recurrent events in the control arm $\lambda_2$.
 - `BetaEvent`: double, log rate ratios for the event rate $\beta_E$.
-- `reps`: integer, simulation replicates
-- `boot`: integer, number of bootstrap samples per replicate
+- `reps`: integer, simulation replicates.
+- `boot`: integer, number of bootstrap samples per replicate.
 - `adj`: integer, indicator of adjustment. Adjusted if `adj = 1`; unadjusted if `adj = 0`.
-- `out`: character, where to store the outputs
+- `out`: character, where to store the outputs.
 
-The true value of the parameter is calculated when specifying $\lambda_C=0$ and `reps = 10000000`, and ther is no need to construct bootstrap/permutation inference.
+The true value of the parameter is calculated when specifying $\lambda_C=0$ and `reps = 10000000`, and there is no need to construct bootstrap/permutation inference.
 
 
