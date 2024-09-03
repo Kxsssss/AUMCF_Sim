@@ -23,6 +23,6 @@ This simulation study is used to evaluate the finite sample properties of AUMCF,
 - `adj`: integer, indicator of adjustment. Adjusted if `adj = 1`; unadjusted if `adj = 0`.
 - `out`: character, where to store the outputs
 
-The true value of the parameter is calculated when specifying $\lambda_C=0$ and `reps = 10000000`.
+The true value of the parameter is calculated when specifying $\lambda_C=0$ and `reps = 10000000`, and ther is no need to construct bootstrap/permutation inference.
 
 

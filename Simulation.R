@@ -163,7 +163,7 @@ Loop <- function(i) {
     return(out)
   }
 }
-sim <- lapply(1:5, Loop)
+sim <- lapply(seq_len(params$reps), Loop)
 sim <- do.call(rbind, sim)
 
 # -----------------------------------------------------------------------------
