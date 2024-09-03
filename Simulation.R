@@ -1,4 +1,4 @@
-#setwd("~/Desktop/recurrent_events")
+#setwd("~/Documents/AUMCF_Sim")
 rm(list = ls())
 
 # Packages.
@@ -24,7 +24,7 @@ opt_list <- c(opt_list, opt)
 opt <- make_option(c("--censor"), type = "numeric", help = "Censoring", default = 1)
 opt_list <- c(opt_list, opt)
 
-# Frailty Variance
+# Frailty variance
 opt <- make_option(c("--frailtyVar"), type = "numeric", 
                    help = "Frailty Variance", default = 0.2)
 opt_list <- c(opt_list, opt)
@@ -65,7 +65,11 @@ opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", defaul
 opt_list <- c(opt_list, opt)
 
 # Permutation replicates.
-opt <- make_option(c("--boot"), type = "integer", help = "Bootstrap replicates", default = 20)
+opt <- make_option(c("--boot"), type = "integer", help = "Bootstrap replicates", default = 500)
+opt_list <- c(opt_list, opt)
+
+# Adjustment
+opt <- make_option(c("--adjusted"), type = "integer", help = "Indicator of adjustment", default = 0)
 opt_list <- c(opt_list, opt)
 
 # Output directory.
@@ -83,14 +87,29 @@ out_suffix <- paste0(
   "_T", params$time,
   "_B", params$boot,
   "_R", params$reps,
+  "_Adj", params$adjusted,
   ".rds"
 )
 
 # -----------------------------------------------------------------------------
 # Simulation.
 # -----------------------------------------------------------------------------
-
-Loop <- function(i) {
+Gen_data <- function(params){
+  # Check if need to be adjusted
+  # NO
+  beta_d <- params$BetaDeath
+  beta_e <- params$BetaEvent
+  covariate0 <- data.frame(arm = rep(0, params$n))
+  covariate1 <- data.frame(arm = rep(1, params$n))
+  # YES
+  if(params$adjusted == 1){
+    beta_d <- rep(params$BetaDeath, 2)
+    beta_e <- rep(params$BetaEvent, 2)
+    covariate0 <- data.frame(arm = rep(0, params$n),
+                              covar = stats::rnorm(params$n))
+    covariate1 <- data.frame(arm = rep(1, params$n),
+                              covar = stats::rnorm(params$n))
+  }
   
   # Generate data for each arm based on different based death rate  
   # and base event rate
@@ -99,9 +118,9 @@ Loop <- function(i) {
     censoring_rate = params$censor,
     base_death_rate = params$BaseDeath0,
     base_event_rate = params$BaseEvent0,
-    beta_death = 0,
-    beta_event = 0,
-    covariates = data.frame(arm = rep(0, params$n)),
+    beta_death = beta_d,
+    beta_event = beta_e,
+    covariates = covariate0,
     frailty_variance = params$frailtyVar,
     tau = params$time
   )
@@ -111,9 +130,9 @@ Loop <- function(i) {
     censoring_rate = params$censor,
     base_death_rate = params$BaseDeath1,
     base_event_rate = params$BaseEvent1,
-    beta_death = 0,
-    beta_event = 0,
-    covariates = data.frame(arm = rep(1, params$n)),
+    beta_death = beta_d,
+    beta_event = beta_e,
+    covariates = covariate1,
     frailty_variance = params$frailtyVar,
     tau = params$time
   )
@@ -121,7 +140,10 @@ Loop <- function(i) {
   # Combine the data for control arm and treatment arm
   data1$idx <- data1$idx + params$n
   data <- rbind(data0, data1)
-  
+}
+
+Loop <- function(i) {
+  data <- Gen_data(params)
   
   boot <- try(
     MCC::CompareAUCs(
@@ -141,8 +163,7 @@ Loop <- function(i) {
     return(out)
   }
 }
-
-sim <- lapply(seq_len(params$reps), Loop)
+sim <- lapply(1:5, Loop)
 sim <- do.call(rbind, sim)
 
 # -----------------------------------------------------------------------------

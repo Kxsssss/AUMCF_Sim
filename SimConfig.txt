@@ -1,3 +1,3 @@
-n	time censor_rate frailty_variance	base_death_rate0 base_death_rate1 base_event_rate0 base_event_rate1 beta_death_rate beta_event_rate
-50 2 1 0.2 0.3 1 1 3 0 0 
-1000 2 1 0.2 0.3 1 1 3 0 0 
+adjustment n time censor_rate frailty_variance base_death_rate0 base_death_rate1 base_event_rate0 base_event_rate1 beta_death_rate beta_event_rate 
+0 50 2 1 0.2 0.3 1 1 3 0 0 
+0 1000 2 1 0.2 0.3 1 1 3 0 0 
