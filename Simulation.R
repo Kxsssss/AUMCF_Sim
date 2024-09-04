@@ -159,7 +159,8 @@ Loop <- function(i) {
     out <- c(
       "observed" = boot@CIs$observed[1],
       "asymptotic_se" = boot@CIs$se[1],
-      "boot_se" = boot@CIs$se[2]
+      "ci_left" = boot@CIs$lower[1],
+      "ci_right" = boot@CIs$upper[1]
     )
     return(out)
   }
@@ -173,18 +174,29 @@ sim <- do.call(rbind, sim)
 # -----------------------------------------------------------------------------
 # Summarize.
 # -----------------------------------------------------------------------------
-
 # Summarized simulation results.
 out <- data.frame(
-  "empirical_var" = var(sim[, 1]),
-  "asymptotic_var" = mean(sim[, 2]^2),
-  "bootstrap_var" = mean(sim[, 3]^2)
+  "empirical_se" = sd(sim[, 1]),
+  "asymptotic_se" = mean(sim[, 2])
 )
+
+# To calculate the values below, the true value need to be known.
+#     True value can be calculated when params$censor = 0 and 
+#     params$reps=10000000; and boot/reps can be omitted in CompareAUCs().
+true_value = 1.52 # need to calculate further
+# bias
+out$bias = mean(sim[, 1]) - true_value
+# coverage probability
+out$CP = mean(sim[, 3] <= true_value & true_value <= sim[, 4])
+# MSE
+out$MSE = mean(sum((sim[, 1] - true_value)^2))
+
 
 # Store simulation settings.
 out$n <- params$n
 out$time <- params$time
 out$censor <- params$censor
+out$frailtyVar <- params$frailtyVar
 out$BaseDeath0 <- params$BaseDeath0
 out$BaseEvent0 <- params$BaseEvent0
 out$BetaDeath <- params$BetaDeath

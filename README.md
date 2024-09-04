@@ -23,6 +23,24 @@ This simulation study is used to evaluate the finite sample properties of AUMCF,
 - `adj`: integer, indicator of adjustment. Adjusted if `adj = 1`; unadjusted if `adj = 0`.
 - `out`: character, where to store the outputs.
 
-The true value of the parameter is calculated when specifying $\lambda_C=0$ and `reps = 10000000`, and there is no need to construct bootstrap/permutation inference.
+## True value
+The true value of the parameter can be calculated when specifying $\lambda_C=0$ and `reps = 10,000,000`, and replacing the `Loop()` function with `Loop_true()` in the $\textit{Simulation}$ section of `Simulation.R` as shown below:
 
+```r
+Loop_true <- function(i) {
+  data <- Gen_data(params)
+  boot <- try(
+    MCC::CompareAUCs(
+      tau = params$time,
+      # no censoring
+      data %>% dplyr::filter(status != 0),
+      cens_after_last = FALSE
+    )
+  )
+  if (class(boot) != "try-error") {
+    return(boot@CIs$observed[1])
+  }
+}
+```
+Once the 10 million estimates are obtained, their average value will be used to represent the true value. Additionally, please replace the value of `true_value` (in the $\textit{Summarize} section of `Simulation.R`) under different parameter settings.
 
