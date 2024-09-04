@@ -42,5 +42,5 @@ Loop_true <- function(i) {
   }
 }
 ```
-Once the 10 million estimates are obtained, their average value will be used to represent the true value. Additionally, please replace the value of `true_value` (in the $\textit{Summarize} section of `Simulation.R`) under different parameter settings.
+Once the 10 million estimates are obtained, their average value will be used to represent the true value. Additionally, please replace the value of `true_value` (in the $\textit{Summarize}$ section of `Simulation.R`) under different parameter settings.
 
