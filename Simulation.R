@@ -22,22 +22,22 @@ opt <- make_option(c("--time"), type = "numeric", help = "Patients", default = 2
 opt_list <- c(opt_list, opt)
 
 # Censoring rate.
-opt <- make_option(c("--censor"), type = "numeric", help = "Censoring", default = 1)
+opt <- make_option(c("--censor"), type = "numeric", help = "Censoring", default = 0.2)
 opt_list <- c(opt_list, opt)
 
 # Frailty variance
 opt <- make_option(c("--frailtyVar"), type = "numeric", 
-                   help = "Frailty Variance", default = 0.2)
+                   help = "Frailty Variance", default = 0)
 opt_list <- c(opt_list, opt)
 
 
 # Base death rate for the reference(0) and treatment(1) arm
 opt <- make_option(c("--BaseDeath0"), type = "numeric", 
-                   help = "Base death rate for the reference arm", default = 0.3)
+                   help = "Base death rate for the reference arm", default = 0.2)
 opt_list <- c(opt_list, opt)
 
 opt <- make_option(c("--BaseDeath1"), type = "numeric",
-                   help = "Base death rate for the treatment arm", default = 1)
+                   help = "Base death rate for the treatment arm", default = 0.2)
 opt_list <- c(opt_list, opt)
 
 # Beta death rate 
@@ -52,7 +52,7 @@ opt <- make_option(c("--BaseEvent0"), type = "numeric",
 opt_list <- c(opt_list, opt)
 
 opt <- make_option(c("--BaseEvent1"), type = "numeric", 
-                   help = "Base event rate for the treatment arm", default = 3)
+                   help = "Base event rate for the treatment arm", default = 1)
 opt_list <- c(opt_list, opt)
 
 # Beta event rate 
@@ -65,12 +65,16 @@ opt_list <- c(opt_list, opt)
 opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 1000)
 opt_list <- c(opt_list, opt)
 
-# Permutation replicates.
-opt <- make_option(c("--boot"), type = "integer", help = "Bootstrap replicates", default = 500)
-opt_list <- c(opt_list, opt)
-
 # Adjustment
 opt <- make_option(c("--adjusted"), type = "integer", help = "Indicator of adjustment", default = 0)
+opt_list <- c(opt_list, opt)
+
+# True value 
+opt <- make_option(c("--tv"), type = "numeric", help = "True value", default = 0)
+opt_list <- c(opt_list, opt)
+
+# Experience index
+opt <- make_option(c("--ei"), type = "integer", help = "Index of experience", default = 1)
 opt_list <- c(opt_list, opt)
 
 # Output directory.
@@ -86,8 +90,8 @@ params <- parse_args(object = parsed_opts)
 out_suffix <- paste0(
   "N", params$n, 
   "_T", params$time,
-  "_B", params$boot,
-  "_R", params$reps,
+  "_f", params$frailtyVar,
+  "_bb",params$BetaDeath, params$BetaEvent,
   "_Adj", params$adjusted,
   ".rds"
 )
@@ -95,79 +99,108 @@ out_suffix <- paste0(
 # -----------------------------------------------------------------------------
 # Simulation.
 # -----------------------------------------------------------------------------
+# Data generation for unadjusted cases
 Gen_data <- function(params){
-  # Check if need to be adjusted
-  # NO
-  beta_d <- params$BetaDeath
-  beta_e <- params$BetaEvent
-  covariate0 <- data.frame(arm = rep(0, params$n))
-  covariate1 <- data.frame(arm = rep(1, params$n))
-  # YES
-  if(params$adjusted == 1){
-    beta_d <- rep(params$BetaDeath, 2)
-    beta_e <- rep(params$BetaEvent, 2)
-    covariate0 <- data.frame(arm = rep(0, params$n),
-                              covar = stats::rnorm(params$n))
-    covariate1 <- data.frame(arm = rep(1, params$n),
-                              covar = stats::rnorm(params$n))
+  # E1, E4
+  if(ei == 1 | ei == 4){
+    beta_d <- params$BetaDeath
+    beta_e <- params$BetaEvent
+    covariate <- data.frame(arm = c(rep(0, params$n), rep(1, params$n)))
+  }
+  # E3
+  if(ei == 3){
+    # if BetaEvent is set to be 0, then run the null case
+    if(params$BetaEvent == 0){
+      beta_e <- c(log(1), log(1))
+    }else{
+      beta_e <- c(log(0.5), log(2))
+    }
+    beta_d <- c(0,0)
+    covariate <- data.frame(arm = c(rep(0, params$n), rep(1, params$n)),
+                            covar = stats::rnorm(params$n*2))
   }
   
-  # Generate data for each arm based on different based death rate  
-  # and base event rate
-  data0 <- MCC::GenData(
-    n = params$n,
-    censoring_rate = params$censor,
-    base_death_rate = params$BaseDeath0,
-    base_event_rate = params$BaseEvent0,
-    beta_death = beta_d,
-    beta_event = beta_e,
-    covariates = covariate0,
-    frailty_variance = params$frailtyVar,
-    tau = params$time
-  )
-  
-  data1 <- MCC::GenData(
-    n = params$n,
-    censoring_rate = params$censor,
-    base_death_rate = params$BaseDeath1,
-    base_event_rate = params$BaseEvent1,
-    beta_death = beta_d,
-    beta_event = beta_e,
-    covariates = covariate1,
-    frailty_variance = params$frailtyVar,
-    tau = params$time
-  )
-  
-  # Combine the data for control arm and treatment arm
-  data1$idx <- data1$idx + params$n
-  data <- rbind(data0, data1)
+  if(ei == 2){
+    beta_d <- params$BetaDeath
+    beta_e <- params$BetaEvent
+    covariate0 <- data.frame(arm = rep(0, params$n))
+    covariate1 <- data.frame(arm = rep(1, params$n))
+    
+    # Generate data for each arm based on different based death rate  
+    # and base event rate
+    data0 <- MCC::GenData(
+      n = params$n,
+      censoring_rate = params$censor,
+      base_death_rate = params$BaseD,
+      base_event_rate = params$BaseE,
+      beta_death = beta_d,
+      beta_event = beta_e,
+      covariates = covariate0,
+      frailty_variance = params$frailtyVar,
+      tau = params$time
+    )
+    
+    data1 <- MCC::GenData(
+      n = params$n,
+      censoring_rate = params$censor,
+      base_death_rate = params$BaseDeath,
+      base_event_rate = params$BaseEvent,
+      beta_death = beta_d,
+      beta_event = beta_e,
+      covariates = covariate1,
+      frailty_variance = params$frailtyVar,
+      tau = params$time
+    )
+    
+    # Combine the data for control arm and treatment arm
+    data1$idx <- data1$idx + params$n
+    data <- rbind(data0, data1)
+    return(data)
+    
+  }else{
+    data <- MCC::GenData(
+      n = params$n * 2,
+      censoring_rate = params$censor,
+      base_death_rate = params$BaseD,
+      base_event_rate = params$BaseE,
+      beta_death = beta_d,
+      beta_event = beta_e,
+      covariates = covariate,
+      frailty_variance = params$frailtyVar,
+      tau = params$time
+    )
+    return(data)
+  }
 }
 
 Loop <- function(i) {
   data <- Gen_data(params)
-  
-  boot <- try(
-    MCC::CompareAUCs(
-      data,
-      tau = params$time,
-      boot = TRUE,
-      reps = params$boot
+  # if adjustment is needed
+  if(params$adjusted == 1){
+    boot <- try(
+      MCC::CompareAUCs(data, tau = params$time, 
+                       covars = data %>% dplyr::select(covar))
     )
-  )
+  }else{ # others
+    boot <- try(
+      MCC::CompareAUCs(data, tau = params$time)
+    )
+  }
   
   if (class(boot) != "try-error") {
-    out <- c(
+    sim_results <- c(
+      "n" = params$n,
+      "tau" = params$time,
       "observed" = boot@CIs$observed[1],
       "asymptotic_se" = boot@CIs$se[1],
-      "ci_left" = boot@CIs$lower[1],
-      "ci_right" = boot@CIs$upper[1]
+      "cover_ind" = boot@CIs$lower[1] <= params$tv & params$tv <= boot@CIs$upper[1],
+      "p_value" = boot@Pvals$p[1]
     )
-    return(out)
+    return(sim_results)
   }
 }
 
 numCores <- detectCores()
-#sim <- parallel::mclapply(1:5, Loop, mc.cores = numCores)
 sim <- parallel::mclapply(seq_len(params$reps), Loop, mc.cores = numCores)
 sim <- do.call(rbind, sim)
 
@@ -176,39 +209,32 @@ sim <- do.call(rbind, sim)
 # -----------------------------------------------------------------------------
 # Summarized simulation results.
 out <- data.frame(
-  "empirical_se" = sd(sim[, 1]),
-  "asymptotic_se" = mean(sim[, 2])
+  "bias" = mean(sim[, 3]) - params$tv,
+  "empirical_se" = sd(sim[, 3]),
+  "asymptotic_se" = mean(sim[, 4]),
+  "CP" = mean(sim[,5]),     # coverage probability
+  "p_value"= mean(sim[,6]),
+  "MSE" = mean(sum((sim[, 3] - params$tv)^2))
 )
-
-# To calculate the values below, the true value need to be known.
-#     True value can be calculated when params$censor = 0 and 
-#     params$reps=10000000; and boot/reps can be omitted in CompareAUCs().
-true_value = 1.52 # need to calculate further
-# bias
-out$bias = mean(sim[, 1]) - true_value
-# coverage probability
-out$CP = mean(sim[, 3] <= true_value & true_value <= sim[, 4])
-# MSE
-out$MSE = mean(sum((sim[, 1] - true_value)^2))
-
 
 # Store simulation settings.
 out$n <- params$n
 out$time <- params$time
-out$censor <- params$censor
-out$frailtyVar <- params$frailtyVar
-out$BaseDeath0 <- params$BaseDeath0
-out$BaseEvent0 <- params$BaseEvent0
-out$BetaDeath <- params$BetaDeath
-out$BetaEvent <- params$BetaEvent
-out$reps <- params$reps
-out$boot <- params$boot
 
-
+# save the summary table
 out_stem <- paste0(params$out)
 if (!dir.exists(out_stem)) {dir.create(out_stem, recursive = TRUE)}
 out_file <- paste0(out_stem, out_suffix)
 saveRDS(object = out, file = out_file)
+# save the points estimates
+sim_file <- paste0(out_stem, "sim",
+                   "_N", params$n,
+                   "_T", params$time,
+                   "_Adj", params$adjusted,
+                   "_bb", params$BetaDeath, params$BetaEvent,
+                   "_f", params$frailtyVar,
+                   ".rds")
+saveRDS(object = sim, file = sim_file)
 
 # -----------------------------------------------------------------------------
 # End
