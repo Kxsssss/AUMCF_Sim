@@ -5,6 +5,7 @@ rm(list = ls())
 library(optparse)
 library(MCC)
 library(parallel)
+library(dplyr)
 
 # -----------------------------------------------------------------------------
 # Command line arguments.
@@ -102,13 +103,13 @@ out_suffix <- paste0(
 # Data generation for unadjusted cases
 Gen_data <- function(params){
   # E1, E4
-  if(ei == 1 | ei == 4){
+  if(params$ei == 1 | params$ei == 4){
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
     covariate <- data.frame(arm = c(rep(0, params$n), rep(1, params$n)))
   }
   # E3
-  if(ei == 3){
+  if(params$ei == 3){
     # if BetaEvent is set to be 0, then run the null case
     if(params$BetaEvent == 0){
       beta_e <- c(log(1), log(1))
@@ -120,7 +121,7 @@ Gen_data <- function(params){
                             covar = stats::rnorm(params$n*2))
   }
   
-  if(ei == 2){
+  if(params$ei == 2){
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
     covariate0 <- data.frame(arm = rep(0, params$n))
@@ -131,8 +132,8 @@ Gen_data <- function(params){
     data0 <- MCC::GenData(
       n = params$n,
       censoring_rate = params$censor,
-      base_death_rate = params$BaseD,
-      base_event_rate = params$BaseE,
+      base_death_rate = params$BaseDeath0,
+      base_event_rate = params$BaseEvent0,
       beta_death = beta_d,
       beta_event = beta_e,
       covariates = covariate0,
@@ -143,8 +144,8 @@ Gen_data <- function(params){
     data1 <- MCC::GenData(
       n = params$n,
       censoring_rate = params$censor,
-      base_death_rate = params$BaseDeath,
-      base_event_rate = params$BaseEvent,
+      base_death_rate = params$BaseDeath1,
+      base_event_rate = params$BaseEvent1,
       beta_death = beta_d,
       beta_event = beta_e,
       covariates = covariate1,
@@ -161,8 +162,8 @@ Gen_data <- function(params){
     data <- MCC::GenData(
       n = params$n * 2,
       censoring_rate = params$censor,
-      base_death_rate = params$BaseD,
-      base_event_rate = params$BaseE,
+      base_death_rate = params$BaseDeath0,
+      base_event_rate = params$BaseEvent0,
       beta_death = beta_d,
       beta_event = beta_e,
       covariates = covariate,
@@ -201,7 +202,7 @@ Loop <- function(i) {
 }
 
 numCores <- detectCores()
-sim <- parallel::mclapply(seq_len(params$reps), Loop, mc.cores = numCores)
+sim <- parallel::mclapply(seq_len(10), Loop, mc.cores = numCores)
 sim <- do.call(rbind, sim)
 
 # -----------------------------------------------------------------------------
