@@ -1,2 +1,0 @@
-adjustment n time frailty_variance base_event_rate1 beta_death_rate beta_event_rate tv experiment
-0 50 2 0 2 0 0 0 1
