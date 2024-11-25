@@ -202,7 +202,7 @@ Loop <- function(i) {
 }
 
 numCores <- detectCores()
-sim <- parallel::mclapply(seq_len(10), Loop, mc.cores = numCores)
+sim <- parallel::mclapply(seq_len(params$reps), Loop, mc.cores = numCores)
 sim <- do.call(rbind, sim)
 
 # -----------------------------------------------------------------------------
