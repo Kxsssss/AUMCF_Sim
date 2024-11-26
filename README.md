@@ -36,7 +36,7 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
   - Vary $\tau$ in {1, 2, 3, 4}.
 
 ### Experiment 2: Non-null Case (Difference in Event Rates)
-- Objective: Introduce a difference in event rates between the groups from E1, with $\lambda_1=1$ and $\lambda_2=2$, the rest settings remain the same.
+- Objective: Introduce a difference in event rates between the groups from E1, with $\lambda_1=1$ and $\lambda_2=2$.  The rest of the settings remain the same.
 
 ### Experiment 3: Covariate Effect
 - Objective: Demonstrate the effect of covariate augmentation on estimator performance.
