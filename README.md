@@ -1,23 +1,23 @@
-# Extensive simulation studies for the Area Under the Mean Cumulative Function (AUMCF)
+# Simulation studies for the Area Under the Mean Cumulative Function (AUMCF)
 
 ## Description
-This simulation study is used to evaluate the finite sample properties of AUMCF, by considering the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the difference in AUCMF. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC}) package.
+This simulation study is used to evaluate the finite sample properties of the difference in the AUMCF across two treatment groups, including the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the covariate augmentation approach. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC}) package.
 
-## Controllable variables
+## Simulation inputs
 - `n`: integer, arm size.
 - `time`: double, truncation time $\tau$.
 - `censor`: double, censoring rate $\lambda_C$.
 - `frailtyVar`: double, variance of the gamma frailty $\sigma_0^2$.
 - `BaseDeath0`: double, baseline arrival rate for the terminal event in the reference arm $\lambda_{D1}$.
 - `BaseDeath1`: double, baseline arrival rate for the terminal event in the control arm $\lambda_{D2}$.
-- `BetaDeath`: double, log rate ratios for the death rate $\beta_D$.
+- `BetaDeath`: double, log rate ratio for the death rate $\beta_D$.
 - `BaseEvent0`: double, baseline arrival rate for the recurrent events in the reference arm $\lambda_1$.
 - `BaseEvent1`: double, baseline arrival rate for the recurrent events in the control arm $\lambda_2$.
-- `BetaEvent`: double, log rate ratios for the event rate $\beta_E$.
+- `BetaEvent`: double, log rate ratio for the event rate $\beta_E$.
 - `reps`: integer, simulation replicates.
-- `adjusted`: integer, indicator of adjustment. Adjusted if `adjusted = 1`; unadjusted if `adjusted = 0`.
-- `tv`: numeric, true value, need to be calculated before run the simulation.
-- `ei`: integer, index of experience, from 1 to 4.
+- `adjusted`: integer, indicator of covariate adjustment. Adjusted if `adjusted = 1`; unadjusted if `adjusted = 0`.
+- `tv`: numeric, true value, needs to be calculated before running the simulation.
+- `ei`: integer, index of the simulation experiment, from 1 to 4.
 - `out`: character, where to store the outputs.
 
 
