@@ -57,7 +57,7 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
 
 ## How to run the code
 
-### Lazy Version:
+### On your computer
 If you select all and run the `Simulation.R` file, it will run using the default values in the `params`.  The current setup is under the null. 
 
 The output includes:
@@ -68,7 +68,7 @@ The output includes:
 
 If you change the default values of `params` (in the **Command line arguments** section) and "select all" to run each time, the simulation setting will change.
 
-### Using Shell Script: 
+### On a cluster
 Since different clusters may require different `.sh` formats, `Sim.sh` is an example that works on the Niagara cluster. Please adapt the format according to the requirements of your specific cluster.
 
   
