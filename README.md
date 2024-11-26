@@ -45,27 +45,28 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
   - Two settings:
     - (i) No effect of covariates: beta event rate set to be (log(1), log(1)) 
     - (ii) Strong effect of covariates: beta event rate set to be (log(0.5), log(2))
-    - Note: in the code, set `BetaEvent` = 0 and `ei` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically.
-  - Vary n in {50, 100, 200, 400}.
+    - Note: in the code, set `BetaEvent` = 0 and `ei` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically
+  - Vary n in {50, 100, 200, 400}
   
 ### Experiment 4: Frailty Effect (Additional simulation not included in the text)
 - Objective: Assess the impact of frailty (unobserved heterogeneity) on estimator performance. 
 - Parameters:
-  - Fixed $\tau = 2$ under the null.
-  - Vary frailty variance in {0, 2, 4, 8}.
-  - Vary n in {50, 100, 200, 400}.
+  - Fixed $\tau = 2$ under the null
+  - Vary frailty variance in {0, 2, 4, 8}
+  - Vary n in {50, 100, 200, 400}
 
 ## How to run the code
 
 ### Lazy Version:
-If you select all and run the `Simulation.R` file, it will run using all the default values in the `params` (the current setup is under the null). You will get:
+If you select all and run the `Simulation.R` file, it will run using the default values in the `params`.  The current setup is under the null. 
 
-- two RDS files:
-  - one is a summary table, 
-  - and the other contains all the simulation data, with a name starting with "sim",
-- and the running time information. 
+The output includes:
 
-So, if you simply change the default values of `params` (in the **Command line arguments** section) and "select all" to run each time, it will work.
+- two RDS files containing:
+  - A summary table, including...
+  - All the simulation data and the running time information.  The name of the file starts with "sim". 
+
+If you change the default values of `params` (in the **Command line arguments** section) and "select all" to run each time, the simulation setting will change.
 
 ### Using Shell Script: 
 Since different clusters may require different `.sh` formats, `Sim.sh` is an example that works on the Niagara cluster. Please adapt the format according to the requirements of your specific cluster.
