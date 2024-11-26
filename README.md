@@ -30,10 +30,10 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
 ### Experiment 1: Null Case (No Difference Between Groups)
 - Objective: Evaluate bias, ESE (empirical standard error), ASE (asymptotic standard error), CP (coverage probability), p-value, and MSE (mean square error) under the null hypothesis of no difference in event rates between groups.
 - Parameters:
-  - $\lambda_1 = \lambda_2 =1, \lambda_D = \lambda_D = 0.2, \lambda_C = 0.2$, indicating patients are expected to live for 5 years and experience 1 recurrent event per year. 
+  - $\lambda_1 = \lambda_2 =1, \lambda_D = \lambda_D = 0.2, \lambda_C = 0.2$, indicating patients are expected to live for 5 years and experience 1 recurrent event per year
   - No frailty or covariates
-  - Vary n in {50, 100, 200, 400}.
-  - Vary $\tau$ in {1, 2, 3, 4}.
+  - Vary n in {50, 100, 200, 400}
+  - Vary $\tau$ in {1, 2, 3, 4}
 
 ### Experiment 2: Non-null Case (Difference in Event Rates)
 - Objective: Introduce a difference in event rates between the groups from E1, with $\lambda_1=1$ and $\lambda_2=2$.  The rest of the settings remain the same.
@@ -41,14 +41,14 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
 ### Experiment 3: Covariate Effect
 - Objective: Demonstrate the effect of covariate augmentation on estimator performance.
 - Parameters:
-  - Fixed $\tau = 2$ under the null.
+  - Fixed $\tau = 2$ under the null
   - Two settings:
-    - (i) No effect of covariates, beta event rate set to be (log(1), log(1)), 
-    - (ii) Strong effect of covariates, beta event rate set to be (log(0.5), log(2)).
+    - (i) No effect of covariates: beta event rate set to be (log(1), log(1)) 
+    - (ii) Strong effect of covariates: beta event rate set to be (log(0.5), log(2)).
     - Note: in the code, set `BetaEvent` = 0 and `ei` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically.
   - Vary n in {50, 100, 200, 400}.
   
-### Experiment 4: Frailty Effect (Addiltional simulation)
+### Experiment 4: Frailty Effect (Additional simulation not included in the text)
 - Objective: Assess the impact of frailty (unobserved heterogeneity) on estimator performance. 
 - Parameters:
   - Fixed $\tau = 2$ under the null.
