@@ -4,7 +4,7 @@
 This simulation study is used to evaluate the finite sample properties of the difference in the AUMCF across two treatment groups, including the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the covariate augmentation approach. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC}) package.
 
 ## Simulation inputs
-- `n`: integer, arm size.
+- `n`: integer, arm size $n$.
 - `time`: double, truncation time $\tau$.
 - `censor`: double, censoring rate $\lambda_C$.
 - `frailtyVar`: double, variance of the gamma frailty $\sigma_0^2$.
