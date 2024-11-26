@@ -48,7 +48,7 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
     - Note: in the code, set `BetaEvent` = 0 and `ei` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically.
   - Vary n in {50, 100, 200, 400}.
   
-### Experiment 4: Frailty Effect
+### Experiment 4: Frailty Effect (Addiltional simulation)
 - Objective: Assess the impact of frailty (unobserved heterogeneity) on estimator performance. 
 - Parameters:
   - Fixed $\tau = 2$ under the null.
