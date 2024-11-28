@@ -64,13 +64,13 @@ If you select all and run the `Simulation.R` file, it will run using the default
 The output includes:
 
 - two RDS files containing:
-  - A summary table, including bias, ESE, ASE, CP, p-value, MSE, n and $\tau$. The name of the file is in the format of "N`n`_T`time`_f`frailtyVar`_bb`BetaDeath` `BetaEvent`_Adj`adjusted`.rds", 
+  - A summary table, including bias, ESE, ASE, CP, p-value, MSE, n and $\tau$. The name of the file is in the format of "N`n`_T`time`($\tau$)_f`frailtyVar`($\sigma_0^2$)_bb`BetaDeath`($\beta_D$) `BetaEvent`($\beta_E$)_Adj`adjusted`.rds", 
   - All the simulation data and the running time information. The name of the file starts with "sim" and same info as the previous RDS file. 
 
 If you change the default values of `params` (in the **Command line arguments** section) and "select all" to run each time, the simulation setting will change.
 
 ### On a cluster
-Since different clusters may require different `.sh` formats, `Sim.sh` is an example that works on the Niagara cluster. Please adapt the format according to the requirements of your specific cluster.
+Since different clusters may require different `.sh` formats, `Sim.sh` is an example that works on the [Niagara cluster](https://docs.alliancecan.ca/wiki/Niagara_Quickstart). Please adapt the format according to the requirements of your specific cluster.
 
   
   
