@@ -75,7 +75,7 @@ opt <- make_option(c("--tv"), type = "numeric", help = "True value", default = 0
 opt_list <- c(opt_list, opt)
 
 # Experience index
-opt <- make_option(c("--ei"), type = "integer", help = "Index of experience", default = 1)
+opt <- make_option(c("--experiment"), type = "integer", help = "Index of experience", default = 1)
 opt_list <- c(opt_list, opt)
 
 # Output directory.
@@ -103,13 +103,13 @@ out_suffix <- paste0(
 # Data generation for unadjusted cases
 Gen_data <- function(params){
   # E1, E4
-  if(params$ei == 1 | params$ei == 4){
+  if(params$experiment == 1 | params$experiment == 4){
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
     covariate <- data.frame(arm = c(rep(0, params$n), rep(1, params$n)))
   }
   # E3
-  if(params$ei == 3){
+  if(params$experiment == 3){
     # if BetaEvent is set to be 0, then run the null case
     if(params$BetaEvent == 0){
       beta_e <- c(log(1), log(1))
@@ -121,7 +121,7 @@ Gen_data <- function(params){
                             covar = stats::rnorm(params$n*2))
   }
   
-  if(params$ei == 2){
+  if(params$experiment == 2){
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
     covariate0 <- data.frame(arm = rep(0, params$n))

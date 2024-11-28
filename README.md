@@ -1,7 +1,7 @@
 # Simulation studies for the Area Under the Mean Cumulative Function (AUMCF)
 
 ## Description
-This simulation study is used to evaluate the finite sample properties of the difference in the AUMCF across two treatment groups, including the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the covariate augmentation approach. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC}) package.
+This simulation study is used to evaluate the finite sample properties of the difference in the AUMCF across two treatment groups, including the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the covariate augmentation approach. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC.git) package.
 
 ## Simulation inputs
 - `n`: integer, arm size $n$.
@@ -16,8 +16,8 @@ This simulation study is used to evaluate the finite sample properties of the di
 - `BetaEvent`: double, log rate ratio for the event rate $\beta_E$.
 - `reps`: integer, simulation replicates.
 - `adjusted`: integer, indicator of covariate adjustment. Adjusted if `adjusted = 1`; unadjusted if `adjusted = 0`.
-- `tv`: numeric, true value, needs to be calculated before running the simulation.
-- `ei`: integer, index of the simulation experiment, from 1 to 4.
+- `tv`: double, true value, needs to be calculated before running the simulation.
+- `experiment`: integer, index of the simulation experiment, from 1 to 4. For more detailed information about the experiment, please see below.
 - `out`: character, where to store the outputs.
 
 
