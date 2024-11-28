@@ -22,7 +22,8 @@ This simulation study is used to evaluate the finite sample properties of the di
 
 
 ## True value
-The true value for each setting is the empirical average of 2,000 simulated realizations without any censoring. This is achieved by setting the censoring rate (`censor`) to 0 and using a very large value for the truncation time (`time`), such as $10^{35}$, during the data generation step (`Gen_data()`). 
+The true value for each setting is the empirical average of 2,000 (`reps=2000`) simulated realizations without any censoring. This is achieved by setting the censoring rate (`censor`) to 0 and using a very large value for the truncation time (`time`), such as $10^{35}$, during the data generation step (`Gen_data()`).
+
  
 ## Simulation Design
 Each simulation study is based on 1000 replicated datasets (`reps=1000`).
@@ -43,9 +44,9 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
 - Parameters:
   - Fixed $\tau = 2$ under the null
   - Two settings:
-    - (i) No effect of covariates: beta event rate set to be (log(1), log(1)) 
-    - (ii) Strong effect of covariates: beta event rate set to be (log(0.5), log(2))
-    - Note: in the code, set `BetaEvent` = 0 and `ei` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically
+    - (i) No effect of covariates: $\beta_E=c(log(1), log(1))$ 
+    - (ii) Strong effect of covariates: $\beta_E=c(log(0.5), log(2))$  
+    - Note: in the code, set `BetaEvent` = 0 and `experiment` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically
   - Vary n in {50, 100, 200, 400}
   
 ### Experiment 4: Frailty Effect (Additional simulation not included in the text)
@@ -63,8 +64,8 @@ If you select all and run the `Simulation.R` file, it will run using the default
 The output includes:
 
 - two RDS files containing:
-  - A summary table, including...
-  - All the simulation data and the running time information.  The name of the file starts with "sim". 
+  - A summary table, including bias, ESE, ASE, CP, p-value, MSE, n and $\tau$. The name of the file is in the format of "N`n`_T`time`_f`frailtyVar`_bb`BetaDeath` `BetaEvent`_Adj`adjusted`.rds", 
+  - All the simulation data and the running time information. The name of the file starts with "sim" and same info as the previous RDS file. 
 
 If you change the default values of `params` (in the **Command line arguments** section) and "select all" to run each time, the simulation setting will change.
 

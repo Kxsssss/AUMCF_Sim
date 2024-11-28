@@ -231,9 +231,9 @@ saveRDS(object = out, file = out_file)
 sim_file <- paste0(out_stem, "sim",
                    "_N", params$n,
                    "_T", params$time,
-                   "_Adj", params$adjusted,
-                   "_bb", params$BetaDeath, params$BetaEvent,
                    "_f", params$frailtyVar,
+                   "_bb", params$BetaDeath, params$BetaEvent,
+                   "_Adj", params$adjusted,
                    ".rds")
 saveRDS(object = sim, file = sim_file)
 
