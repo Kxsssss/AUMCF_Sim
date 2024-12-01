@@ -22,7 +22,7 @@ This simulation study is used to evaluate the finite sample properties of the di
 
 
 ## True value
-The true value for each setting is the empirical average of 2,000 (`reps=2000`) simulated realizations without any censoring. This is achieved by setting the censoring rate (`censor`) to 0 and using a very large value for the truncation time (`time`), such as $10^{35}$, during the data generation step (`Gen_data()`).
+When the true value is not 0, it is the empirical average of 2,000 (`reps=2000`) simulated realizations without any censoring for each setting. This is achieved by setting the censoring rate (`censor`) to 0 and using very large values for the truncation time (`time`) and arm size (`n`), such as `time` = $10^{35}$ and `n` = $10^4$, during the data generation step (`Gen_data()`).
 
  
 ## Simulation Design
