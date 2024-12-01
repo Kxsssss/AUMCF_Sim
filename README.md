@@ -31,7 +31,7 @@ Each simulation study is based on 1000 replicated datasets (`reps=1000`).
 ### Experiment 1: Null Case (No Difference Between Groups)
 - Objective: Evaluate bias, ESE (empirical standard error), ASE (asymptotic standard error), CP (coverage probability), p-value, and MSE (mean square error) under the null hypothesis of no difference in event rates between groups.
 - Parameters:
-  - $\lambda_1 = \lambda_2 =1, \lambda_D = \lambda_D = 0.2, \lambda_C = 0.2$, indicating patients are expected to live for 5 years and experience 1 recurrent event per year
+  - $\lambda_1 = \lambda_2 =1, \lambda_{D1} = \lambda_{D2} = 0.2, \lambda_C = 0.2$, indicating patients are expected to live for 5 years and experience 1 recurrent event per year
   - No frailty or covariates
   - Vary n in {50, 100, 200, 400}
   - Vary $\tau$ in {1, 2, 3, 4}
