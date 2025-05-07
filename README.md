@@ -38,9 +38,9 @@ Each scenario is based on a fixed number of replicated datasets.
 
 ### Validity (E1)
 Evaluate bias, coverage probability of 95% CI, and type I error under the null hypothesis (no treatment effect).
-- Event times: Poisson(λ_E = 1)
-- Censoring: Exponential(λ_C = 0.2)
-- Death: Exponential(λ_D = 0.2)
+- Event times: $λ_{E1} = λ_{E2} =1$
+- Censoring: $λ_{C} = 0.2$
+- Death: $λ_{D1} = λ_{D2} =0.2$
 - Sample sizes: n ∈ {50, 100, 200, 400}
 - Truncation times: τ ∈ {1, 2, 3, 4}
 - Replicates: 10,000
@@ -57,8 +57,8 @@ Evaluate the effect of covariate augmentation under the null (no treatment effec
 - Two settings:
   1. Uninformative: no effect on events or death
   2. Informative:
-     - Death rate: scaled by $exp(X β_D), β_D = log(0.5)$
-     - Event rate: scaled by $exp(X β_E), β_E = log(2.0)$
+     - Death rate: $β_D = log(0.5)$
+     - Event rate: $β_E = log(2.0)$
   - Note: in the code, set BetaEvent = 0 and experiment = 3 to run case (1), and other value of BetaEvent will run case (2) automatically
 - Truncation time: τ = 2
 - Sample sizes: n ∈ {50, 100, 200, 400}
