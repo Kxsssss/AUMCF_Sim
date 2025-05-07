@@ -3,7 +3,7 @@
 ## Description
 This simulation study is used to evaluate the finite sample properties of the difference in the AUMCF across two treatment groups, including the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the covariate augmentation approach. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC.git) package.
 
-The simulation compares AUMCF-based methods with the following commonly used methods:
+The simulation compares AUMCF-based methods with the following methods, as discussed in Gregson et al. (2023):
 - Cox Proportional Hazards Model (First Event Only)
 - Lin Wei Yang Ying (LWYY) Model
 - Negative Binomial Model Rate Ratio
@@ -11,6 +11,9 @@ The simulation compares AUMCF-based methods with the following commonly used met
 - Win Ratio
 
 The implementation of these methods can be found in the files `jacc_helper.R` and `JACC_methods.R`. The main simulation script is `sim_comparison.R`.
+
+> Gregson, J., Stone, G.W., Bhatt, D.L., Packer, M., Anker, S.D., Zeller, C., et al. (2023). 
+> Clinical Endpoints for Evaluating the Benefit of New Therapies in Cardiovascular Disease: A Consensus Statement from the Academic Research Consortium. *Journal of the American College of Cardiology*, 81(4), 389–401. https://doi.org/10.1016/j.jacc.2022.10.054
 
 ## Simulation inputs
 - `n`: integer, arm size $n$.
