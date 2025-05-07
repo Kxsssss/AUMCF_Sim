@@ -3,6 +3,15 @@
 ## Description
 This simulation study is used to evaluate the finite sample properties of the difference in the AUMCF across two treatment groups, including the bias, empirical standard error (ESE), asymptotic standard error (ASE), coverage probability of the 95% normal-based confidence interval (CP), and relative efficiency (RE) of the covariate augmentation approach. All analyses were conducted using the [Mean Cumulative Curve (MCC)](https://github.com/zrmacc/MCC.git) package.
 
+The simulation compares AUMCF-based methods with the following commonly used methods:
+- Cox Proportional Hazards Model (First Event Only)
+- Lin Wei Yang Ying (LWYY) Model
+- Negative Binomial Model Rate Ratio
+- Joint Frailty Model (without terminal event)
+- Win Ratio
+
+The implementation of these methods can be found in the files `jacc_helper.R` and `JACC_methods.R`. The main simulation script is `sim_comparison.R`.
+
 ## Simulation inputs
 - `n`: integer, arm size $n$.
 - `time`: double, truncation time $\tau$.
@@ -17,60 +26,81 @@ This simulation study is used to evaluate the finite sample properties of the di
 - `reps`: integer, simulation replicates.
 - `adjusted`: integer, indicator of covariate adjustment. Adjusted if `adjusted = 1`; unadjusted if `adjusted = 0`.
 - `tv`: double, true value, needs to be calculated before running the simulation.
-- `experiment`: integer, index of the simulation experiment, from 1 to 4. For more detailed information about the experiment, please see below.
+- `experiment`: integer, index of the simulation experiment, from 1 to 3. For more detailed information about the experiment, please see below.
 - `out`: character, where to store the outputs.
 
 
 ## True value
 When the true value is not 0, it is the empirical average of 2,000 (`reps=2000`) simulated realizations without any censoring for each setting. This is achieved by setting the censoring rate (`censor`) to 0 and using very large values for the truncation time (`time`) and arm size (`n`), such as `time` = $10^{35}$ and `n` = $10^4$, during the data generation step (`Gen_data()`).
 
- 
 ## Simulation Design
-Each simulation study is based on 1000 replicated datasets (`reps=1000`).
+Each scenario is based on a fixed number of replicated datasets.
 
-### Experiment 1: Null Case (No Difference Between Groups)
-- Objective: Evaluate bias, ESE (empirical standard error), ASE (asymptotic standard error), CP (coverage probability), p-value, and MSE (mean square error) under the null hypothesis of no difference in event rates between groups.
-- Parameters:
-  - $\lambda_1 = \lambda_2 =1, \lambda_{D1} = \lambda_{D2} = 0.2, \lambda_C = 0.2$, indicating patients are expected to live for 5 years and experience 1 recurrent event per year
-  - No frailty or covariates
-  - Vary n in {50, 100, 200, 400}
-  - Vary $\tau$ in {1, 2, 3, 4}
+### Validity (E1)
+Evaluate bias, coverage probability of 95% CI, and type I error under the null hypothesis (no treatment effect).
+- Event times: Poisson(λ_E = 1)
+- Censoring: Exponential(λ_C = 0.2)
+- Death: Exponential(λ_D = 0.2)
+- Sample sizes: n ∈ {50, 100, 200, 400}
+- Truncation times: τ ∈ {1, 2, 3, 4}
+- Replicates: 10,000
 
-### Experiment 2: Non-null Case (Difference in Event Rates)
-- Objective: Introduce a difference in event rates between the groups from E1, with $\lambda_1=1$ and $\lambda_2=2$.  The rest of the settings remain the same.
+### Power (E2)
+Assess estimation and inference when a treatment effect is present.
+- Event rates: $λ_{E1}$ = 1 (treatment), $λ_{E2}$ = 2 (reference)
+- Other settings same as Validity
+- Replicates: 1,000
 
-### Experiment 3: Covariate Effect
-- Objective: Demonstrate the effect of covariate augmentation on estimator performance.
-- Parameters:
-  - Fixed $\tau = 2$ under the null
-  - Two settings:
-    - (i) No effect of covariates: $\beta_E=c(log(1), log(1))$ 
-    - (ii) Strong effect of covariates: $\beta_E=c(log(0.5), log(2))$  
-    - Note: in the code, set `BetaEvent` = 0 and `experiment` = 3 to run case (i), and other value of  `BetaEvent` will run case (ii) automatically
-  - Vary n in {50, 100, 200, 400}
-  
-### Experiment 4: Frailty Effect (Additional simulation not included in the text)
-- Objective: Assess the impact of frailty (unobserved heterogeneity) on estimator performance. 
-- Parameters:
-  - Fixed $\tau = 2$ under the null
-  - Vary frailty variance in {0, 2, 4, 8}
-  - Vary n in {50, 100, 200, 400}
+### Covariate Adjustment (E3)
+Evaluate the effect of covariate augmentation under the null (no treatment effect).
+- Covariate: X ∼ N(0, 1)
+- Two settings:
+  1. Uninformative: no effect on events or death
+  2. Informative:
+     - Death rate: scaled by $exp(X β_D), β_D = log(0.5)$
+     - Event rate: scaled by $exp(X β_E), β_E = log(2.0)$
+  - Note: in the code, set BetaEvent = 0 and experiment = 3 to run case (1), and other value of BetaEvent will run case (2) automatically
+- Truncation time: τ = 2
+- Sample sizes: n ∈ {50, 100, 200, 400}
 
-## How to run the code
+## Output Files
+Each run generates two `.rds` files:
 
-### On your computer
-If you select all and run the `Simulation.R` file, it will run using the default values in the `params`.  The current setup is under the null. 
+### 1. Simulation-level estimates (contains per-replicate results)
+File name pattern:
+```
+simN<n>_T<time>_l0<BaseEvent0>_l1<BaseEvent1>_adj<adjusted>.rds
+```
+Includes the following columns:
+- `value`: point estimate of AUMCF difference
+- `se`: standard error
+- `lower`, `upper`: confidence interval bounds
+- `p_value`: p-value from hypothesis test
+- `type`: method name
+- `true_value`: true value for the setting
 
-The output includes:
+### 2. Summary statistics
+File name pattern:
+```
+N<n>_T<time>_l0<BaseEvent0>_l1<BaseEvent1>_adj<adjusted>.rds
+```
+Includes the following columns:
+- `type`: method name
+- `bias`: average bias
+- `lower`, `upper`: average CI bounds
+- `cov_p`: empirical coverage
+- `ase`: average ASE
+- `ese`: empirical standard deviation of estimates
+- `p_value`: average p-value
+- `true_value`: setting-specific true value
+- `n`: sample size
+- `time`: truncation time
+- `rep`: number of replicates
 
-- two RDS files containing:
-  - A summary table, including bias, ESE, ASE, CP, p-value, MSE, n and $\tau$. The name of the file is in the format of "N`n`_T`time`($\tau$)_f`frailtyVar`($\sigma_0^2$)_bb`BetaDeath`($\beta_D$) `BetaEvent`($\beta_E$)_Adj`adjusted`.rds", 
-  - All the simulation data and the running time information. The name of the file starts with "sim" and same info as the previous RDS file. 
+## Running the Code
 
-If you change the default values of `params` (in the **Command line arguments** section) and "select all" to run each time, the simulation setting will change.
+### Local Execution
+Run `sim_comparison.R` after setting parameters in the `params` list. Output will be saved in the specified format.
 
-### On a cluster
-Since different clusters may require different `.sh` formats, `Sim.sh` is an example that works on the [Niagara cluster](https://docs.alliancecan.ca/wiki/Niagara_Quickstart). Please adapt the format according to the requirements of your specific cluster.
-
-  
-  
+### Cluster Execution
+Use the provided `Sim.sh` file as a template (configured for Niagara cluster). Adjust it to meet your cluster environment's requirements.
