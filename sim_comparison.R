@@ -119,11 +119,11 @@ out_suffix <- paste0(
 params <- list(
   n = 100,
   time = 2,
-  censor = 0.2,
+  censor = 0.2, # with higher censoring we do much better. 
   frailtyVar = 0,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
-  BaseEvent0 = 1.5,
+  BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
@@ -131,9 +131,10 @@ params <- list(
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
-  experiment = 2,
+  experiment = 3,
   out = "Test/"
 )
+
 
 # -----------------------------------------------------------------------------
 # Simulation.
@@ -238,6 +239,7 @@ Loop <- function(i) {
     nb <- nb(data)
     frailty <- frailty_(data)
     wr_rec <- wr_rec(data)
+    gl <- gl(data)
     
     aucmf_diff <- data.frame(
       value = boot@CIs$observed[1],

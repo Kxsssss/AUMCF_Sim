@@ -283,3 +283,35 @@ wr_rec <- function(data){
   return(result)
 
 }
+
+
+
+
+# Ghosh + Lin
+#install.packages("reReg")
+library(reReg)
+gl <- function(data){
+  fit_gl <- reReg(
+    Recur(time, idx, status == 1) ~ arm,
+    data = data,
+    model = "cox.GL"
+  )
+  
+  s_gl <- summary(fit_gl)
+  gl_coef <- s_gl$coefficients.rec[1,1]
+  gl_se <- s_gl$coefficients.rec[1,2]
+  gl_hr <- exp(gl_coef)
+  gl_ci_l <- exp(gl_coef - 1.96 * gl_se)
+  gl_ci_u <- exp(gl_coef + 1.96 * gl_se)
+  gl_p <- s_gl$coefficients[1,4]
+  #gl_z <- s_gl$coefficients[1,3]
+  
+  result <- data.frame(value = gl_hr,
+                       se = gl_se,
+                       lower = gl_ci_l,
+                       upper = gl_ci_u,
+                       p_value = gl_p,
+                       #z_value = gl_z,
+                       type  = "gl")
+  return(result)
+}
