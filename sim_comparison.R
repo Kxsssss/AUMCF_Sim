@@ -118,7 +118,7 @@ out_suffix <- paste0(
 
 params <- list(
   n = 100,
-  time = 2,
+  time = 4,
   censor = 0.2, # with higher censoring we do much better. 
   frailtyVar = 0,
   BaseDeath0 = 0.2,
@@ -239,7 +239,6 @@ Loop <- function(i) {
     nb <- nb(data)
     frailty <- frailty_(data)
     wr_rec <- wr_rec(data)
-    gl <- gl(data)
     
     aucmf_diff <- data.frame(
       value = boot@CIs$observed[1],

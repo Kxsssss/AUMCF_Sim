@@ -285,14 +285,15 @@ wr_rec <- function(data){
 }
 
 
-
-
-# Ghosh + Lin
+# Ghosh + Lin - gives error.
 #install.packages("reReg")
 library(reReg)
 gl <- function(data){
+  data$event <- (data$status == 1) * 1
+  data$status_gl <- (data$status == 2) * 1
+  fm <- Recur(time, idx, event, status_gl) ~ arm
   fit_gl <- reReg(
-    Recur(time, idx, status == 1) ~ arm,
+    fm,
     data = data,
     model = "cox.GL"
   )
