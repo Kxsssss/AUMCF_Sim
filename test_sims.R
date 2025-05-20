@@ -256,14 +256,14 @@ params <- list(
   n = 100,
   time = 4,
   censor = 0.2,
-  frailtyVar = 0,
+  frailtyVar = 1,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
   BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 500,
+  reps = 1000,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
@@ -284,5 +284,14 @@ out_suffix <- paste0(
 
 source('test_sim_comparison.R')
 
+
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>%
+  group_by(type) %>%
+  summarise(mean_pvalue = mean(p_value < 0.05)))
+
+print(sim_augmented %>%
+        group_by(type) %>%
+        summarise(mean_val = mean(value)))
 
 
