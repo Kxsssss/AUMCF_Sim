@@ -91,7 +91,7 @@ opt_list <- c(opt_list, opt)
 # Experiment index.
 opt <- make_option(c("--experiment"), type = "integer", help = "Index of experiment", default = 2)
 opt_list <- c(opt_list, opt)
-# Q: Something is not right with the data generation function handles experiment
+# NOTE 1: Something is not right with the data generation function handles experiment
 # index and if you change the values of the events rate; please fix.  For example,
 # with default = 1 you do not get the null setting. 
 
@@ -299,6 +299,8 @@ tv_lookup <- tibble(
   true_value = if_else(type == "aucmf_diff" | type == "aucmf_diff_adj", 
                        params$tvd, params$tvr)
 )
+
+# NOTE 2: You aren't getting the full # of simulation replicates.
 
 sim_augmented <- sim %>%
   left_join(tv_lookup, by = "type")

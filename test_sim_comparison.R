@@ -112,7 +112,7 @@ Loop <- function(i) {
     )
     
     results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr_rec, aucmf_diff)
-    print(results)
+    #print(results)
     
     # if need to compare to the adjusted case 
     if(params$adjusted == 1){
@@ -138,40 +138,8 @@ Loop <- function(i) {
   }
 }
 
-numCores <- detectCores()
-#sim_l <- parallel::mclapply(seq_len(params$reps), Loop, mc.cores = numCores)
-sim_l <- parallel::mclapply(seq_len(5), Loop, mc.cores = numCores)
-sim_ul <- do.call(rbind, sim_l)
-#sim$rep <- rep(seq_along(sim_l), each = nrow(sim_l[[1]]))
-
-char_cols <- c("type")
-sim <- sim_ul %>%
-  mutate(across(
-    .cols = -all_of(char_cols),
-    .fns = ~ suppressWarnings(as.numeric(.))
-  )) %>%
-  filter(complete.cases(.))
-
-extra_run <- 0
-baseline <- if_else(params$adjusted == 0, 7, 8)
-extra_i <- 0
-while (nrow(sim) < baseline*params$reps) {
-  extra_run <- (baseline*params$reps - nrow(sim))/baseline
-  sim_l1 <- parallel::mclapply(seq_len(extra_run) + params$reps + extra_i,
-                               Loop, mc.cores = numCores)
-  sim_ul1 <- do.call(rbind, sim_l1)
-  
-  char_cols <- c("type")
-  sim1 <- sim_ul1 %>%
-    mutate(across(
-      .cols = -all_of(char_cols),
-      .fns = ~ suppressWarnings(as.numeric(.))
-    )) %>%
-    filter(complete.cases(.))
-  sim <- rbind(sim, sim1)
-  extra_i = extra_i + extra_run
-}
-
+output <- lapply(1 : params$reps, Loop)
+sim <- do.call(rbind, output)
 # -----------------------------------------------------------------------------
 # Summarize.
 # -----------------------------------------------------------------------------
@@ -231,9 +199,13 @@ cat(t1-t0, "\n")
 
 
 # Sanity check
-print(dim(sim_augmented)) # should be 2000 * 9 = 18000
-print(sim_augmented %>% 
-  group_by(type) %>%
-  summarise(mean_pvalue = mean(p_value < 0.05)))
-
-print(head(sim_augmented, 9))
+# print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+# print(sim_augmented %>% 
+#   group_by(type) %>%
+#   summarise(mean_pvalue = mean(p_value < 0.05)))
+# 
+# print(sim_augmented %>% 
+#         group_by(type) %>%
+#         summarise(mean_val = mean(value)))
+# 
+# print(head(sim_augmented, 9))

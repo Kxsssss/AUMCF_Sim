@@ -254,20 +254,20 @@ source('test_sim_comparison.R')
 # B4: Low censoring, tau = 1 
 params <- list(
   n = 100,
-  time = 1,
+  time = 4,
   censor = 0.2,
   frailtyVar = 0,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
-  BaseEvent0 = 1.4,
+  BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 5000,
+  reps = 500,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
-  experiment = 2,
+  experiment = 3,
   out = "Test/"
 )
 # Option parsing.

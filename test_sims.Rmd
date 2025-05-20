@@ -25,13 +25,13 @@ library(dplyr)
 
 #source("../JACC_methods.R")
 source("JACC_methods.R")
-my_reps <- 5000
+my_reps <- 10
 ```
 
 # Scenario A:  Censoring = 0.2, tau = 4 
 
 ## A1: Null 
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 4,
@@ -74,7 +74,7 @@ print(sim_augmented %>%
 
 
 ## A2: Non-null (1.4)
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 4,
@@ -120,7 +120,7 @@ print(sim_augmented %>%
 # Scenario B:  Censoring = 0.4, tau = 4 
 
 ## B1: Null 
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 4,
@@ -163,7 +163,7 @@ print(sim_augmented %>%
 
 
 ## B2: Non-null (1.4)
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 4,
@@ -208,7 +208,7 @@ print(sim_augmented %>%
 # Scenario C:  Censoring = 0.2, tau = 1 
 
 ## C1: Null 
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 1,
@@ -251,7 +251,7 @@ print(sim_augmented %>%
 
 
 ## C2: Non-null (1.4)
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 1,
@@ -297,7 +297,7 @@ print(sim_augmented %>%
 # Scenario D:  Censoring = 0.2, tau = 1
 
 ## D1: Null 
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 1,
@@ -340,7 +340,7 @@ print(sim_augmented %>%
 
 
 ## D2: Non-null (1.4)
-```{r }
+```{r results='hide'}
 params <- list(
   n = 100,
   time = 1,
