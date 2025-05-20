@@ -1,4 +1,19 @@
-#setwd("~/Documents/AUMCF_Sim/jacc")
+---
+title: "AUMCF Simulations"
+output:
+  html_document: default
+  pdf_document: default
+date: "2025-05-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+## R Markdown
+
+```{r}
 setwd('~/Documents/GitHub/AUMCF_Sim')
 rm(list = ls())
 
@@ -10,13 +25,17 @@ library(dplyr)
 
 #source("../JACC_methods.R")
 source("JACC_methods.R")
+my_reps <- 5000
+```
 
-# A: NULL SCENARIO
-# A1: High censoring, tau = 4 
+# Scenario A:  Censoring = 0.2, tau = 4 
+
+## A1: Null 
+```{r }
 params <- list(
   n = 100,
   time = 4,
-  censor = 0.4,
+  censor = 0.2,
   frailtyVar = 0,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
@@ -24,7 +43,7 @@ params <- list(
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 5000,
+  reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
@@ -44,9 +63,18 @@ out_suffix <- paste0(
 )
 
 source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+        group_by(type) %>%
+        summarise(mean_pvalue = mean(p_value < 0.05)))
+```
 
 
-# A2: Low censoring, tau = 4 
+## A2: Non-null (1.4)
+```{r }
 params <- list(
   n = 100,
   time = 4,
@@ -54,11 +82,57 @@ params <- list(
   frailtyVar = 0,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+        group_by(type) %>%
+        summarise(mean_pvalue = mean(p_value < 0.05)))
+```
+
+\newpage
+
+# Scenario B:  Censoring = 0.4, tau = 4 
+
+## B1: Null 
+```{r }
+params <- list(
+  n = 100,
+  time = 4,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
   BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 5000,
+  reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
@@ -78,13 +152,67 @@ out_suffix <- paste0(
 )
 
 source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+  group_by(type) %>%
+  summarise(mean_pvalue = mean(p_value < 0.05)))
+```
 
 
-# A3: High censoring, tau = 1 
+## B2: Non-null (1.4)
+```{r }
+params <- list(
+  n = 100,
+  time = 4,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+  group_by(type) %>%
+  summarise(mean_pvalue = mean(p_value < 0.05)))
+```
+
+\newpage
+# Scenario C:  Censoring = 0.2, tau = 1 
+
+## C1: Null 
+```{r }
 params <- list(
   n = 100,
   time = 1,
-  censor = 0.4,
+  censor = 0.2,
   frailtyVar = 0,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
@@ -92,7 +220,7 @@ params <- list(
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 5000,
+  reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
@@ -112,9 +240,18 @@ out_suffix <- paste0(
 )
 
 source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+        group_by(type) %>%
+        summarise(mean_pvalue = mean(p_value < 0.05)))
+```
 
 
-# A4: Low censoring, tau = 1 
+## C2: Non-null (1.4)
+```{r }
 params <- list(
   n = 100,
   time = 1,
@@ -122,11 +259,57 @@ params <- list(
   frailtyVar = 0,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+        group_by(type) %>%
+        summarise(mean_pvalue = mean(p_value < 0.05)))
+```
+
+\newpage
+
+# Scenario D:  Censoring = 0.2, tau = 1
+
+## D1: Null 
+```{r }
+params <- list(
+  n = 100,
+  time = 1,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
   BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 5000,
+  reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
@@ -146,78 +329,18 @@ out_suffix <- paste0(
 )
 
 source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+        group_by(type) %>%
+        summarise(mean_pvalue = mean(p_value < 0.05)))
+```
 
 
-# B: NON-NULL SCENARIO
-# B1: High censoring, tau = 4 
-params <- list(
-  n = 100,
-  time = 4,
-  censor = 0.4,
-  frailtyVar = 0,
-  BaseDeath0 = 0.2,
-  BaseDeath1 = 0.2,
-  BaseEvent0 = 1.4,
-  BaseEvent1 = 1.0,
-  BetaDeath = 0,
-  BetaEvent = 0,
-  reps = 5000,
-  adjusted = 0,
-  tvr = 1.2,
-  tvd = 0.2,
-  experiment = 2,
-  out = "Test/"
-)
-# Option parsing.
-t0 <- proc.time()
-# Output stem.
-out_suffix <- paste0(
-  "N", params$n, 
-  "_T", params$time,
-  "_l0", params$BaseEvent0,
-  "_l1", params$BaseEvent1,
-  "_adj", params$adjusted,
-  ".rds"
-)
-
-source('test_sim_comparison.R')
-
-
-# B2: Low censoring, tau = 4 
-params <- list(
-  n = 100,
-  time = 4,
-  censor = 0.2,
-  frailtyVar = 0,
-  BaseDeath0 = 0.2,
-  BaseDeath1 = 0.2,
-  BaseEvent0 = 1.4,
-  BaseEvent1 = 1.0,
-  BetaDeath = 0,
-  BetaEvent = 0,
-  reps = 5000,
-  adjusted = 0,
-  tvr = 1.2,
-  tvd = 0.2,
-  experiment = 2,
-  out = "Test/"
-)
-# Option parsing.
-t0 <- proc.time()
-# Output stem.
-out_suffix <- paste0(
-  "N", params$n, 
-  "_T", params$time,
-  "_l0", params$BaseEvent0,
-  "_l1", params$BaseEvent1,
-  "_adj", params$adjusted,
-  ".rds"
-)
-
-source('test_sim_comparison.R')
-
-
-# B3: High censoring, tau = 1 
+## D2: Non-null (1.4)
+```{r }
 params <- list(
   n = 100,
   time = 1,
@@ -229,7 +352,7 @@ params <- list(
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 5000,
+  reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
@@ -249,40 +372,12 @@ out_suffix <- paste0(
 )
 
 source('test_sim_comparison.R')
+```
 
-
-# B4: Low censoring, tau = 1 
-params <- list(
-  n = 100,
-  time = 1,
-  censor = 0.2,
-  frailtyVar = 0,
-  BaseDeath0 = 0.2,
-  BaseDeath1 = 0.2,
-  BaseEvent0 = 1.4,
-  BaseEvent1 = 1.0,
-  BetaDeath = 0,
-  BetaEvent = 0,
-  reps = 5000,
-  adjusted = 0,
-  tvr = 1.2,
-  tvd = 0.2,
-  experiment = 2,
-  out = "Test/"
-)
-# Option parsing.
-t0 <- proc.time()
-# Output stem.
-out_suffix <- paste0(
-  "N", params$n, 
-  "_T", params$time,
-  "_l0", params$BaseEvent0,
-  "_l1", params$BaseEvent1,
-  "_adj", params$adjusted,
-  ".rds"
-)
-
-source('test_sim_comparison.R')
-
-
+```{r}
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
+        group_by(type) %>%
+        summarise(mean_pvalue = mean(p_value < 0.05)))
+```
 
