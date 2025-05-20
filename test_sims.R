@@ -259,7 +259,7 @@ params <- list(
   frailtyVar = 1,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
-  BaseEvent0 = 1.0,
+  BaseEvent0 = 1.4,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
@@ -267,7 +267,7 @@ params <- list(
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
-  experiment = 3,
+  experiment = 2,
   out = "Test/"
 )
 # Option parsing.
