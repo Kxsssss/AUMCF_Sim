@@ -6,7 +6,7 @@
 #   value    se   lower    upper   p_value   type
 #   (ratio)       (95% ci       )            (name of the model)
 ##########################################################################
-
+setwd('~/Documents/GitHub/AUMCF_Sim')
 # Cox Proportional Hazards Model (First Event Only)
 library(dplyr)
 library(survival)

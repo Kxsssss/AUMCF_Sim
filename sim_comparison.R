@@ -1,4 +1,5 @@
-setwd("~/Documents/AUMCF_Sim/jacc")
+#setwd("~/Documents/AUMCF_Sim/jacc")
+setwd('~/Documents/GitHub/AUMCF_Sim')
 rm(list = ls())
 
 # Packages.
@@ -7,8 +8,8 @@ library(MCC)
 library(parallel)
 library(dplyr)
 
-source("../JACC_methods.R")
-
+#source("../JACC_methods.R")
+source("JACC_methods.R")
 # -----------------------------------------------------------------------------
 # Command line arguments.
 # -----------------------------------------------------------------------------
