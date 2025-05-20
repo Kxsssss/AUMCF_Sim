@@ -121,7 +121,7 @@ frailty_ <- function(data){
     formula = Surv(start, time, status) ~ cluster(idx) + arm,
     data = df_frailty,
     recurrentAG = TRUE, 
-    n.knots = 10,
+    n.knots = 7,
     kappa = 1e-2
   )
   

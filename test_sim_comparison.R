@@ -1,128 +1,10 @@
-#setwd("~/Documents/AUMCF_Sim/jacc")
-setwd('~/Documents/GitHub/AUMCF_Sim')
-rm(list = ls())
-
-# Packages.
-library(optparse)
-library(MCC)
-library(parallel)
-library(dplyr)
-
-#source("../JACC_methods.R")
-source("JACC_methods.R")
-# -----------------------------------------------------------------------------
-# Command line arguments.
-# -----------------------------------------------------------------------------
-
-# Command line options.
-opt_list <- list()
-
-
-# Sample size.
-opt <- make_option(c("--n"), type = "integer", help = "Patients", default = 100)
-opt_list <- c(opt_list, opt)
-
-
-# Truncation time (tau).
-opt <- make_option(c("--time"), type = "numeric", help = "Patients", default = 2)
-opt_list <- c(opt_list, opt)
-
-
-# Censoring rate.
-opt <- make_option(c("--censor"), type = "numeric", help = "Censoring", default = 0.2)
-opt_list <- c(opt_list, opt)
-
-
-# Frailty variance.
-opt <- make_option(c("--frailtyVar"), type = "numeric", 
-                   help = "Frailty Variance", default = 1)
-opt_list <- c(opt_list, opt)
-
-
-# Base death rate for the reference(0) and treatment(1) arm.
-opt <- make_option(c("--BaseDeath0"), type = "numeric", 
-                   help = "Base death rate for the reference arm", default = 0.2)
-opt_list <- c(opt_list, opt)
-
-opt <- make_option(c("--BaseDeath1"), type = "numeric",
-                   help = "Base death rate for the treatment arm", default = 0.2)
-opt_list <- c(opt_list, opt)
-
-
-# Beta death rate. 
-opt <- make_option(c("--BetaDeath"), type = "numeric", 
-                   help = "Beta death rate", default = 0)
-opt_list <- c(opt_list, opt)
-
-
-# Base event rate for the reference(0) and treatment(1) arm.
-opt <- make_option(c("--BaseEvent0"), type = "numeric", 
-                   help = "Base event rate for the reference arm", default = 1) 
-opt_list <- c(opt_list, opt)
-
-opt <- make_option(c("--BaseEvent1"), type = "numeric", 
-                   help = "Base event rate for the treatment arm", default = 1)
-opt_list <- c(opt_list, opt)
-
-
-# Beta event rate.
-opt <- make_option(c("--BetaEvent"), type = "numeric", 
-                   help = "Beta death rate", default = 1)
-opt_list <- c(opt_list, opt)
-
-
-# Simulation replicates.
-opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 500)
-opt_list <- c(opt_list, opt)
-
-
-# Adjustment.
-opt <- make_option(c("--adjusted"), type = "integer", help = "Indicator of adjustment", default = 1)
-opt_list <- c(opt_list, opt)
-
-
-# True value. 
-opt <- make_option(c("--tvr"), type = "numeric", help = "True value (ratio)", default = 1)
-opt_list <- c(opt_list, opt)
-opt <- make_option(c("--tvd"), type = "numeric", help = "True value (difference)", default = 0)
-opt_list <- c(opt_list, opt)
-
-
-# Experiment index.
-opt <- make_option(c("--experiment"), type = "integer", help = "Index of experiment", default = 2)
-opt_list <- c(opt_list, opt)
-# Q: Something is not right with the data generation function handles experiment
-# index and if you change the values of the events rate; please fix.  For example,
-# with default = 1 you do not get the null setting. 
-
-# Output directory.
-opt <- make_option(c("--out"), type = "character", help = "Output stem", default = "Test/")
-opt_list <- c(opt_list, opt)
-
-
-# Option parsing.
-t0 <- proc.time()
-parsed_opts <- OptionParser(option_list = opt_list)
-params <- parse_args(object = parsed_opts)
-
-
-# Output stem.
-out_suffix <- paste0(
-  "N", params$n, 
-  "_T", params$time,
-  "_l0", params$BaseEvent0,
-  "_l1", params$BaseEvent1,
-  "_adj", params$adjusted,
-  ".rds"
-)
-
 # -----------------------------------------------------------------------------
 # Simulation.
 # -----------------------------------------------------------------------------
 # Data generation for unadjusted cases
 Gen_data <- function(params){
- 
-   # E1, E4
+  
+  # E1, E4
   if(params$experiment == 1 | params$experiment == 4){
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
@@ -200,8 +82,8 @@ Loop <- function(i) {
   set.seed(i)
   data <- Gen_data(params)
   boot <- try(
-      MCC::CompareAUCs(data, tau = params$time)
-    )
+    MCC::CompareAUCs(data, tau = params$time)
+  )
   if (class(boot) != "try-error") {
     # aucmf
     aucmf <- data.frame(
@@ -248,8 +130,8 @@ Loop <- function(i) {
           type = "aucmf_diff_adj"
         )
         results <- rbind(results, aucmf_diff_adj)
-        }
       }
+    }
     rownames(results) <- 1:nrow(results)
     
     return(results)
@@ -349,12 +231,9 @@ cat(t1-t0, "\n")
 
 
 # Sanity check
-sim_augmented %>% 
+print(dim(sim_augmented)) # should be 2000 * 9 = 18000
+print(sim_augmented %>% 
   group_by(type) %>%
-  summarise(mean_pvalue = 1 - mean(lower <= first(true_value) & first(true_value) <= upper))
+  summarise(mean_pvalue = mean(p_value < 0.05)))
 
-sim_augmented %>% 
-  group_by(type) %>%
-  summarise(mean_pvalue = mean(p_value < 0.05))
-
-head(sim_augmented, 9)
+print(head(sim_augmented, 9))
