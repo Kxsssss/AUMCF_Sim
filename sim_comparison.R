@@ -66,7 +66,7 @@ opt_list <- c(opt_list, opt)
 
 
 # Simulation replicates.
-opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 10)
+opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 100)
 opt_list <- c(opt_list, opt)
 
 # Adjustment
@@ -203,6 +203,7 @@ Loop <- function(i) {
     nb <- nb(data)
     frailty <- frailty_(data)
     wr <- wr(data)
+    wr_rec <- wr_rec(data)
     
     aucmf_diff <- data.frame(
       value = boot@CIs$observed[1],
@@ -213,7 +214,8 @@ Loop <- function(i) {
       type = "aucmf_diff"
     )
     
-    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr, aucmf_diff)
+    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr, wr_rec, aucmf_diff)
+    print(results)
     
     # if need to compare to the adjusted case 
     if(params$adjusted == 1){
