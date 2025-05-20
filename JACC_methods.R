@@ -260,18 +260,22 @@ wr_rec <- function(data){
                            p_value = wr_rec_all$pval,
                            type  = "wr_LWR")
   
+  wr_z_FWR <- wr_rec_all$log.WR.FI/wr_rec_all$se.FI
+  p_val_FWR <- 2 * (1 - pnorm(abs(wr_z_FWR)))
   result_FWR <- data.frame(value = exp(wr_rec_all$log.WR.FI),
                            se = wr_rec_all$se.FI * exp(wr_rec_all$log.WR.FI),
                            lower = exp(wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI),
                            upper = exp(wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI),
-                           p_value =  wr_rec_all$pval, # note: not the right pvalue
+                           p_value =  p_val_FWR,
                            type  = "wr_FWR")
   
+  wr_z_NWR <- wr_rec_all$log.WR.naive/wr_rec_all$se.naive
+  p_val_NWR <- 2 * (1 - pnorm(abs(wr_z_NWR)))
   result_NWR <- data.frame(value = exp(wr_rec_all$log.WR.naive),
                            se = wr_rec_all$se.naive * exp(wr_rec_all$log.WR.naive),
                            lower = exp(wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive),
                            upper = exp(wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive),
-                           p_value =  wr_rec_all$pval, # note: not the right pvalue
+                           p_value =  p_val_NWR,
                            type  = "wr_NWR")
   
   result <- rbind(result_LWR, result_FWR, result_NWR)
