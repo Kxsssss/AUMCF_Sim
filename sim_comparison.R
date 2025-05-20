@@ -89,7 +89,7 @@ opt_list <- c(opt_list, opt)
 
 
 # Experiment index.
-opt <- make_option(c("--experiment"), type = "integer", help = "Index of experiment", default = 3)
+opt <- make_option(c("--experiment"), type = "integer", help = "Index of experiment", default = 2)
 opt_list <- c(opt_list, opt)
 # Q: Something is not right with the data generation function handles experiment
 # index and if you change the values of the events rate; please fix.  For example,
@@ -114,6 +114,25 @@ out_suffix <- paste0(
   "_l1", params$BaseEvent1,
   "_adj", params$adjusted,
   ".rds"
+)
+
+params <- list(
+  n = 100,
+  time = 2,
+  censor = 0.2,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.5,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = 500,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
 )
 
 # -----------------------------------------------------------------------------
