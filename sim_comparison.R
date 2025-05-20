@@ -17,25 +17,29 @@ source("JACC_methods.R")
 # Command line options.
 opt_list <- list()
 
+
 # Sample size.
 opt <- make_option(c("--n"), type = "integer", help = "Patients", default = 200)
 opt_list <- c(opt_list, opt)
+
 
 # Truncation time (tau).
 opt <- make_option(c("--time"), type = "numeric", help = "Patients", default = 2)
 opt_list <- c(opt_list, opt)
 
+
 # Censoring rate.
 opt <- make_option(c("--censor"), type = "numeric", help = "Censoring", default = 0.2)
 opt_list <- c(opt_list, opt)
 
-# Frailty variance
+
+# Frailty variance.
 opt <- make_option(c("--frailtyVar"), type = "numeric", 
                    help = "Frailty Variance", default = 0)
 opt_list <- c(opt_list, opt)
 
 
-# Base death rate for the reference(0) and treatment(1) arm
+# Base death rate for the reference(0) and treatment(1) arm.
 opt <- make_option(c("--BaseDeath0"), type = "numeric", 
                    help = "Base death rate for the reference arm", default = 0.2)
 opt_list <- c(opt_list, opt)
@@ -44,53 +48,61 @@ opt <- make_option(c("--BaseDeath1"), type = "numeric",
                    help = "Base death rate for the treatment arm", default = 0.2)
 opt_list <- c(opt_list, opt)
 
-# Beta death rate 
+
+# Beta death rate. 
 opt <- make_option(c("--BetaDeath"), type = "numeric", 
                    help = "Beta death rate", default = 0)
 opt_list <- c(opt_list, opt)
 
 
-# Base event rate for the reference(0) and treatment(1) arm
+# Base event rate for the reference(0) and treatment(1) arm.
 opt <- make_option(c("--BaseEvent0"), type = "numeric", 
-                   help = "Base event rate for the reference arm", default = 1) # Validity = 1,  Power = 2
+                   help = "Base event rate for the reference arm", default = 1) 
 opt_list <- c(opt_list, opt)
 
 opt <- make_option(c("--BaseEvent1"), type = "numeric", 
                    help = "Base event rate for the treatment arm", default = 1)
 opt_list <- c(opt_list, opt)
 
-# Beta event rate 
+
+# Beta event rate.
 opt <- make_option(c("--BetaEvent"), type = "numeric", 
                    help = "Beta death rate", default = 1)
 opt_list <- c(opt_list, opt)
 
 
 # Simulation replicates.
-opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 1000)
+opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 500)
 opt_list <- c(opt_list, opt)
 
-# Adjustment
+
+# Adjustment.
 opt <- make_option(c("--adjusted"), type = "integer", help = "Indicator of adjustment", default = 1)
 opt_list <- c(opt_list, opt)
 
-# True value 
+
+# True value. 
 opt <- make_option(c("--tvr"), type = "numeric", help = "True value (ratio)", default = 1)
 opt_list <- c(opt_list, opt)
 opt <- make_option(c("--tvd"), type = "numeric", help = "True value (difference)", default = 0)
 opt_list <- c(opt_list, opt)
 
-# Experience index
-opt <- make_option(c("--experiment"), type = "integer", help = "Index of experience", default = 3)
+
+# Experiment index.
+opt <- make_option(c("--experiment"), type = "integer", help = "Index of experiment", default = 3)
 opt_list <- c(opt_list, opt)
+
 
 # Output directory.
 opt <- make_option(c("--out"), type = "character", help = "Output stem", default = "Test/")
 opt_list <- c(opt_list, opt)
 
+
 # Option parsing.
 t0 <- proc.time()
 parsed_opts <- OptionParser(option_list = opt_list)
 params <- parse_args(object = parsed_opts)
+
 
 # Output stem.
 out_suffix <- paste0(
@@ -202,7 +214,6 @@ Loop <- function(i) {
     lwyy <- lwyy(data)
     nb <- nb(data)
     frailty <- frailty_(data)
-   # wr <- wr(data) remove old version
     wr_rec <- wr_rec(data)
     
     aucmf_diff <- data.frame(
