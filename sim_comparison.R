@@ -19,7 +19,7 @@ opt_list <- list()
 
 
 # Sample size.
-opt <- make_option(c("--n"), type = "integer", help = "Patients", default = 200)
+opt <- make_option(c("--n"), type = "integer", help = "Patients", default = 100)
 opt_list <- c(opt_list, opt)
 
 
@@ -35,7 +35,7 @@ opt_list <- c(opt_list, opt)
 
 # Frailty variance.
 opt <- make_option(c("--frailtyVar"), type = "numeric", 
-                   help = "Frailty Variance", default = 0)
+                   help = "Frailty Variance", default = 1)
 opt_list <- c(opt_list, opt)
 
 
@@ -91,7 +91,9 @@ opt_list <- c(opt_list, opt)
 # Experiment index.
 opt <- make_option(c("--experiment"), type = "integer", help = "Index of experiment", default = 3)
 opt_list <- c(opt_list, opt)
-
+# Q: Something is not right with the data generation function handles experiment
+# index and if you change the values of the events rate; please fix.  For example,
+# with default = 1 you do not get the null setting. 
 
 # Output directory.
 opt <- make_option(c("--out"), type = "character", help = "Output stem", default = "Test/")
@@ -119,15 +121,17 @@ out_suffix <- paste0(
 # -----------------------------------------------------------------------------
 # Data generation for unadjusted cases
 Gen_data <- function(params){
-  # E1, E4
+ 
+   # E1, E4
   if(params$experiment == 1 | params$experiment == 4){
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
     covariate <- data.frame(arm = c(rep(0, params$n), rep(1, params$n)))
   }
+  
   # E3
   if(params$experiment == 3){
-    # if BetaEvent is set to be 0, then run the null case
+    # If BetaEvent is set to be 0, then run the null case
     if(params$BetaEvent == 0){
       beta_e <- c(log(1), log(1))
       beta_d <- c(log(1), log(1))
@@ -353,3 +357,4 @@ sim_augmented %>%
   group_by(type) %>%
   summarise(mean_pvalue = mean(p_value < 0.05))
 
+head(sim_augmented, 9)
