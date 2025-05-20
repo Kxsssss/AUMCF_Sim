@@ -25,7 +25,7 @@ library(dplyr)
 
 #source("../JACC_methods.R")
 source("JACC_methods.R")
-my_reps <- 10
+my_reps <- 5000
 ```
 
 # Scenario A:  Censoring = 0.2, tau = 4 
