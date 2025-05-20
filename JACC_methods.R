@@ -253,23 +253,22 @@ wr_rec <- function(data){
           strata = NULL, 
           naive = TRUE)
   
-  result_LWR <- data.frame(value = wr_rec_all$log.WR,
-                           se = wr_rec_all$se, 
-                             # wr_rec_all$se * exp(wr_rec_all$log.WR),
+  result_LWR <- data.frame(value = exp(wr_rec_all$log.WR),
+                           se = wr_rec_all$se * exp(wr_rec_all$log.WR),
                            lower = exp(wr_rec_all$log.WR - 1.96 * wr_rec_all$se),
                            upper = exp(wr_rec_all$log.WR + 1.96 * wr_rec_all$se),
                            p_value = wr_rec_all$pval,
                            type  = "wr_LWR")
   
-  result_FWR <- data.frame(value = wr_rec_all$log.WR.FI,
-                           se = wr_rec_all$se.FI,
+  result_FWR <- data.frame(value = exp(wr_rec_all$log.WR.FI),
+                           se = wr_rec_all$se.FI * exp(wr_rec_all$log.WR.FI),
                            lower = wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI,
                            upper = wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI,
                            p_value =  wr_rec_all$pval, # note: not the right pvalue
                            type  = "wr_FWR")
   
-  result_NWR <- data.frame(value = wr_rec_all$log.WR.naive,
-                           se = wr_rec_all$se.naive,
+  result_NWR <- data.frame(value = exp(wr_rec_all$log.WR.naive),
+                           se = wr_rec_all$se.naive * exp(wr_rec_all$log.WR.naive),
                            lower = wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive,
                            upper = wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive,
                            p_value =  wr_rec_all$pval, # note: not the right pvalue
