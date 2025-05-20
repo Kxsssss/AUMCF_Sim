@@ -149,6 +149,7 @@ frailty_ <- function(data){
 # Load packages
 library(dplyr)
 library(survival)
+library(WR)
 
 wr <- function(data){
   # Step 1: Collapse long format to one row per subject
@@ -228,6 +229,10 @@ wr <- function(data){
   wr_z <- log_wr / se_log_wr
   wr_p <- 2 * (1 - pnorm(abs(wr_z)))
   
+  # try it with the packages.
+  #wr_result <- WRrec(ID, time, status, trt, strata = NULL, naive = FALSE)
+  
+  
   result <- data.frame(value = win_ratio,
                        se = win_ratio * se_log_wr,
                        lower = wr_ci_l,
@@ -236,4 +241,41 @@ wr <- function(data){
                        #z_value = wr_z,
                        type  = "wr")
   return(result)
+}
+
+
+wr_rec <- function(data){
+
+  wr_rec_all <- WRrec(data[, "idx"],
+          data[, "time"],
+          data[, "status"],
+          data[, "arm"],
+          strata = NULL, 
+          naive = TRUE)
+  
+  result_LWR <- data.frame(value = exp(wr_rec_all$log.WR),
+                           se = wr_rec_all$se,
+                           lower = exp(wr_rec_all$log.WR - 1.96 * wr_rec_all$se),
+                           upper = exp(wr_rec_all$log.WR + 1.96 * wr_rec_all$se),
+                           p_value = wr_rec_all$pval,
+                           type  = "wr_LWR")
+  
+  result_FWR <- data.frame(value = exp(wr_rec_all$log.WR.FI),
+                           se = wr_rec_all$se.FI,
+                           lower = exp(wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI),
+                           upper = exp(wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI),
+                           p_value = NA,
+                           type  = "wr_FWR")
+  
+  result_NWR <- data.frame(value = exp(wr_rec_all$log.WR.naive),
+                           se = wr_rec_all$se.naive,
+                           lower = exp(wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive),
+                           upper = exp(wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive),
+                           p_value = NA,
+                           type  = "wr_NWR")
+  
+  result <- rbind(result_LWR, result_FWR, result_NWR)
+  
+  return(result)
+
 }

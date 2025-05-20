@@ -66,7 +66,7 @@ opt_list <- c(opt_list, opt)
 
 
 # Simulation replicates.
-opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 1000)
+opt <- make_option(c("--reps"), type = "integer", help = "MC replicates", default = 10)
 opt_list <- c(opt_list, opt)
 
 # Adjustment
