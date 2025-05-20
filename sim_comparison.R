@@ -18,7 +18,7 @@ source("JACC_methods.R")
 opt_list <- list()
 
 # Sample size.
-opt <- make_option(c("--n"), type = "integer", help = "Patients", default = 100)
+opt <- make_option(c("--n"), type = "integer", help = "Patients", default = 200)
 opt_list <- c(opt_list, opt)
 
 # Truncation time (tau).
@@ -52,7 +52,7 @@ opt_list <- c(opt_list, opt)
 
 # Base event rate for the reference(0) and treatment(1) arm
 opt <- make_option(c("--BaseEvent0"), type = "numeric", 
-                   help = "Base event rate for the reference arm", default = 1)
+                   help = "Base event rate for the reference arm", default = 1) # Validity = 1,  Power = 2
 opt_list <- c(opt_list, opt)
 
 opt <- make_option(c("--BaseEvent1"), type = "numeric", 
@@ -202,7 +202,7 @@ Loop <- function(i) {
     lwyy <- lwyy(data)
     nb <- nb(data)
     frailty <- frailty_(data)
-    wr <- wr(data)
+   # wr <- wr(data) remove old version
     wr_rec <- wr_rec(data)
     
     aucmf_diff <- data.frame(
@@ -214,7 +214,7 @@ Loop <- function(i) {
       type = "aucmf_diff"
     )
     
-    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr, wr_rec, aucmf_diff)
+    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr_rec, aucmf_diff)
     print(results)
     
     # if need to compare to the adjusted case 
@@ -301,14 +301,6 @@ summary_table <- sim_augmented %>%
     .groups = "drop"
   )
 
-sim_augmented %>% 
-  group_by(type) %>%
-  summarise(mean_pvalue = 1 - mean(lower <= first(true_value) & first(true_value) <= upper))
-
-sim_augmented %>% 
-  group_by(type) %>%
-  summarise(mean_pvalue = mean(p_value < 0.05))
-
 summary_table_tv <- summary_table %>%
   left_join(tv_lookup, by = "type")
 
@@ -338,3 +330,15 @@ saveRDS(object = sim_augmented, file = sim_file)
 # -----------------------------------------------------------------------------
 t1 <- proc.time()
 cat(t1-t0, "\n")
+
+
+
+# Sanity check
+sim_augmented %>% 
+  group_by(type) %>%
+  summarise(mean_pvalue = 1 - mean(lower <= first(true_value) & first(true_value) <= upper))
+
+sim_augmented %>% 
+  group_by(type) %>%
+  summarise(mean_pvalue = mean(p_value < 0.05))
+
