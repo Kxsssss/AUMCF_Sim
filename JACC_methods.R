@@ -262,15 +262,15 @@ wr_rec <- function(data){
   
   result_FWR <- data.frame(value = exp(wr_rec_all$log.WR.FI),
                            se = wr_rec_all$se.FI * exp(wr_rec_all$log.WR.FI),
-                           lower = wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI,
-                           upper = wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI,
+                           lower = exp(wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI),
+                           upper = exp(wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI),
                            p_value =  wr_rec_all$pval, # note: not the right pvalue
                            type  = "wr_FWR")
   
   result_NWR <- data.frame(value = exp(wr_rec_all$log.WR.naive),
                            se = wr_rec_all$se.naive * exp(wr_rec_all$log.WR.naive),
-                           lower = wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive,
-                           upper = wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive,
+                           lower = exp(wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive),
+                           upper = exp(wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive),
                            p_value =  wr_rec_all$pval, # note: not the right pvalue
                            type  = "wr_NWR")
   

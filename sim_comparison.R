@@ -301,6 +301,10 @@ summary_table <- sim_augmented %>%
     .groups = "drop"
   )
 
+sim_augmented %>% 
+  group_by(type) %>%
+  summarise(mean_pvalue = 1 - mean(lower <= first(true_value) & first(true_value) <= upper))
+
 summary_table_tv <- summary_table %>%
   left_join(tv_lookup, by = "type")
 
