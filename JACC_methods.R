@@ -45,28 +45,43 @@ cox_prop <- function(data){
 #install.packages("reReg")
 library(reReg)
 lwyy <- function(data){
-  fit_lwyy <- reReg(
+  
+  fit_lwyy <- tryCatch(reReg(
     Recur(time, idx, status == 1) ~ arm,
     data = data,
     model = "cox.LWYY"
-  )
+  ), error=function(e) NULL)
   
-  s_lwyy <- summary(fit_lwyy)
-  lwyy_coef <- s_lwyy$coefficients.rec[1,1]
-  lwyy_se <- s_lwyy$coefficients.rec[1,2]
-  lwyy_hr <- exp(lwyy_coef)
-  lwyy_ci_l <- exp(lwyy_coef - 1.96 * lwyy_se)
-  lwyy_ci_u <- exp(lwyy_coef + 1.96 * lwyy_se)
-  lwyy_p <- s_lwyy$coefficients[1,4]
-  #lwyy_z <- s_lwyy$coefficients[1,3]
+
+  if(!is.null(fit_lwyy)){
+    s_lwyy <- summary(fit_lwyy)
+    lwyy_coef <- s_lwyy$coefficients.rec[1,1]
+    lwyy_se <- s_lwyy$coefficients.rec[1,2]
+    lwyy_hr <- exp(lwyy_coef)
+    lwyy_ci_l <- exp(lwyy_coef - 1.96 * lwyy_se)
+    lwyy_ci_u <- exp(lwyy_coef + 1.96 * lwyy_se)
+    lwyy_p <- s_lwyy$coefficients[1,4]
+    #lwyy_z <- s_lwyy$coefficients[1,3]
+    
+    result <- data.frame(value = lwyy_hr,
+                         se = lwyy_se,
+                         lower = lwyy_ci_l,
+                         upper = lwyy_ci_u,
+                         p_value = lwyy_p,
+                         #z_value = lwyy_z,
+                         type  = "lwyy")
+  }else{
+    
+    result <- data.frame(value = NA,
+                         se = NA,
+                         lower = NA,
+                         upper = NA,
+                         p_value = NA,
+                         #z_value = lwyy_z,
+                         type  = "lwyy")
+    
+  }     
   
-  result <- data.frame(value = lwyy_hr,
-                       se = lwyy_se,
-                       lower = lwyy_ci_l,
-                       upper = lwyy_ci_u,
-                       p_value = lwyy_p,
-                       #z_value = lwyy_z,
-                       type  = "lwyy")
   return(result)
 }
 

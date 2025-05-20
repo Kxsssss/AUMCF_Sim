@@ -138,7 +138,7 @@ Loop <- function(i) {
   }
 }
 
-output <- lapply(1 : params$reps, Loop)
+output <- lapply(1 : params$reps, Loop) 
 sim <- do.call(rbind, output)
 # -----------------------------------------------------------------------------
 # Summarize.
