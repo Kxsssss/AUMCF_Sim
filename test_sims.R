@@ -13,11 +13,11 @@ source("JACC_methods.R")
 
 params <- list(
   n = 100,
-  time = 5,
-  censor = 0.5,
-  frailtyVar = 1,
-  BaseDeath0 = 0.2,
-  BaseDeath1 = 0.6,
+  time = 10,
+  censor = 0.2,
+  frailtyVar = 4,
+  BaseDeath0 = 0.8,
+  BaseDeath1 = 0.2,
   BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
