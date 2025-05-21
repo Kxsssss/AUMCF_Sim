@@ -6,7 +6,7 @@
 #   value    se   lower    upper   p_value   type
 #   (ratio)       (95% ci       )            (name of the model)
 ##########################################################################
-setwd('~/Documents/GitHub/AUMCF_Sim')
+
 # Cox Proportional Hazards Model (First Event Only)
 library(dplyr)
 library(survival)
@@ -45,43 +45,28 @@ cox_prop <- function(data){
 #install.packages("reReg")
 library(reReg)
 lwyy <- function(data){
-  
-  fit_lwyy <- tryCatch(reReg(
+  fit_lwyy <- reReg(
     Recur(time, idx, status == 1) ~ arm,
     data = data,
     model = "cox.LWYY"
-  ), error=function(e) NULL)
+  )
   
-
-  if(!is.null(fit_lwyy)){
-    s_lwyy <- summary(fit_lwyy)
-    lwyy_coef <- s_lwyy$coefficients.rec[1,1]
-    lwyy_se <- s_lwyy$coefficients.rec[1,2]
-    lwyy_hr <- exp(lwyy_coef)
-    lwyy_ci_l <- exp(lwyy_coef - 1.96 * lwyy_se)
-    lwyy_ci_u <- exp(lwyy_coef + 1.96 * lwyy_se)
-    lwyy_p <- s_lwyy$coefficients[1,4]
-    #lwyy_z <- s_lwyy$coefficients[1,3]
-    
-    result <- data.frame(value = lwyy_hr,
-                         se = lwyy_se,
-                         lower = lwyy_ci_l,
-                         upper = lwyy_ci_u,
-                         p_value = lwyy_p,
-                         #z_value = lwyy_z,
-                         type  = "lwyy")
-  }else{
-    
-    result <- data.frame(value = NA,
-                         se = NA,
-                         lower = NA,
-                         upper = NA,
-                         p_value = NA,
-                         #z_value = lwyy_z,
-                         type  = "lwyy")
-    
-  }     
+  s_lwyy <- summary(fit_lwyy)
+  lwyy_coef <- s_lwyy$coefficients.rec[1,1]
+  lwyy_se <- s_lwyy$coefficients.rec[1,2]
+  lwyy_hr <- exp(lwyy_coef)
+  lwyy_ci_l <- exp(lwyy_coef - 1.96 * lwyy_se)
+  lwyy_ci_u <- exp(lwyy_coef + 1.96 * lwyy_se)
+  lwyy_p <- s_lwyy$coefficients[1,4]
+  #lwyy_z <- s_lwyy$coefficients[1,3]
   
+  result <- data.frame(value = lwyy_hr,
+                       se = lwyy_se,
+                       lower = lwyy_ci_l,
+                       upper = lwyy_ci_u,
+                       p_value = lwyy_p,
+                       #z_value = lwyy_z,
+                       type  = "lwyy")
   return(result)
 }
 
@@ -136,7 +121,7 @@ frailty_ <- function(data){
     formula = Surv(start, time, status) ~ cluster(idx) + arm,
     data = df_frailty,
     recurrentAG = TRUE, 
-    n.knots = 7,
+    n.knots = 10,
     kappa = 1e-2
   )
   
@@ -164,174 +149,68 @@ frailty_ <- function(data){
 # Load packages
 library(dplyr)
 library(survival)
-library(WR)
 
 wr <- function(data){
-  # Step 1: Collapse long format to one row per subject
-  df_wr <- data %>%
-    group_by(idx, arm) %>%
-    summarise(
-      time = max(time),                        # Time to last observed event (death/censoring)
-      event = as.integer(any(status == 2)),    # 1 = death, 0 = censored or recurrent only
-      recurrent_count = sum(status == 1),      # Number of recurrent events
-      .groups = "drop"
-    )
   
-  # Step 2: Generate all possible treatment vs. control pairs
-  treated <- df_wr %>% filter(arm == 1)
-  control <- df_wr %>% filter(arm == 0)
+  # Creation of dataset 'df' with 2 outcomes:
+  #   Outcome 1: death (survival event)
+  #   Outcome 2: recurrence (repeated survival event)
+  data1 <- data  %>%  
+    group_by(idx) %>% 
+    mutate(death = if_else(max(status) == 2, 1, 0),
+           t2death = max(time)) %>% 
+    ungroup() %>%
+    select(idx, arm, death, t2death) %>% 
+    unique()
   
-  # Initialize counters
-  wins <- 0
-  losses <- 0
-  ties <- 0
-  
-  # Step 3: Pairwise comparisons
-  for (i in 1:nrow(treated)) {
-    for (j in 1:nrow(control)) {
-      
-      ti <- treated[i, ]
-      cj <- control[j, ]
-      
-      # Step 1: Compare death outcome
-      if (ti$event == 1 && cj$event == 1) {
-        # both died → compare death times
-        if (ti$time > cj$time) {
-          wins <- wins + 1
-        } else if (ti$time < cj$time) {
-          losses <- losses + 1
-        } else {
-          # tie in death time → go to recurrence
-          if (ti$recurrent_count < cj$recurrent_count) {
-            wins <- wins + 1
-          } else if (ti$recurrent_count > cj$recurrent_count) {
-            losses <- losses + 1
-          } else {
-            ties <- ties + 1
-          }
-        }
-      } else if (ti$event == 1 && cj$event == 0) {
-        # treated died, control didn't
-        losses <- losses + 1
-      } else if (ti$event == 0 && cj$event == 1) {
-        # treated alive, control died
-        wins <- wins + 1
-      } else {
-        # neither died → compare recurrence
-        if (ti$recurrent_count < cj$recurrent_count) {
-          wins <- wins + 1
-        } else if (ti$recurrent_count > cj$recurrent_count) {
-          losses <- losses + 1
-        } else {
-          ties <- ties + 1
-        }
-      }
-    }
-  }
-  
-  # Step 4: Calculate Win Ratio
-  win_ratio <- wins / losses
-  
-  # log scale
-  log_wr <- log(win_ratio)
-  se_log_wr <- sqrt(1/wins + 1/losses)
-  
-  # CI
-  wr_ci_l<- exp(log_wr - 1.96 * se_log_wr)
-  wr_ci_u <- exp(log_wr + 1.96 * se_log_wr)
-  
-  # z and p (null hypothesis WR = 1)
-  wr_z <- log_wr / se_log_wr
-  wr_p <- 2 * (1 - pnorm(abs(wr_z)))
-  
-  # try it with the packages.
-  #wr_result <- WRrec(ID, time, status, trt, strata = NULL, naive = FALSE)
+  data2 <- data %>% 
+    filter(status == 1) %>% 
+    select(idx, t2recurr = time) %>%
+    mutate(recurr = 1) %>% 
+    arrange(idx, t2recurr) %>% 
+    group_by(idx) %>% 
+    mutate(nrecurr = row_number()) %>% 
+    ungroup() %>% 
+    full_join((data1 %>% select(idx)), by = "idx") %>% 
+    complete(idx, nrecurr) %>%
+    filter(!is.na(nrecurr)) %>% 
+    full_join((data1 %>% select(idx, t2death)), by = "idx") %>% 
+    mutate(
+      recurr = replace(recurr, is.na(recurr), 0),
+      t2recurr = if_else(is.na(t2recurr), t2death, t2recurr)
+    ) %>% 
+    select(idx, nrecurr, recurr, t2recurr)
   
   
-  result <- data.frame(value = win_ratio,
-                       se = win_ratio * se_log_wr,
-                       lower = wr_ci_l,
-                       upper = wr_ci_u,
-                       p_value = wr_p,
-                       #z_value = wr_z,
+  data3 <- data2 %>% 
+    pivot_wider(id_cols = "idx", names_from =  nrecurr, 
+                values_from = recurr, names_prefix  = "recurr") 
+  
+  data4 <- data2 %>% 
+    pivot_wider(id_cols = "idx", names_from =  nrecurr, 
+                values_from = t2recurr, names_prefix  = "t2recurr") 
+  
+  data5 <- full_join(data3, data4, by = "idx")
+  
+  df <- full_join(data1, data5, by = "idx")
+  
+  max_k <- max(data2$nrecurr)
+  recurr_vars <- paste0("recurr", 1:max_k)
+  t2recurr_vars <- paste0("t2recurr", 1:max_k)
+  
+  # Calculate the win ratio
+  wr <- winratio(id = "idx", trt = "arm", active = 1, 
+                 outcomes = list(outc1 = c("death", "s", "t2death"),
+                                 outc2 =  list(recurr_vars, "r", t2recurr_vars)),
+                 fu = "t2death", data = df)
+  
+  wr_se <- (log(wr$wr.upper) - log(wr$wr.lower)) / (2 * 1.96)
+  
+  result <- data.frame(value = wr$wr,
+                       se = wr_se,
+                       lower = wr$wr.lower,
+                       upper = wr$wr.upper,
+                       p_value = wr$p.value,
                        type  = "wr")
   return(result)
 }
-
-
-wr_rec <- function(data){
-
-  wr_rec_all <- WRrec(data[, "idx"],
-          data[, "time"],
-          data[, "status"],
-          data[, "arm"],
-          strata = NULL, 
-          naive = TRUE)
-  
-  result_LWR <- data.frame(value = exp(wr_rec_all$log.WR),
-                           se = wr_rec_all$se * exp(wr_rec_all$log.WR),
-                           lower = exp(wr_rec_all$log.WR - 1.96 * wr_rec_all$se),
-                           upper = exp(wr_rec_all$log.WR + 1.96 * wr_rec_all$se),
-                           p_value = wr_rec_all$pval,
-                           type  = "wr_LWR")
-  
-  wr_z_FWR <- wr_rec_all$log.WR.FI/wr_rec_all$se.FI
-  p_val_FWR <- 2 * (1 - pnorm(abs(wr_z_FWR)))
-  result_FWR <- data.frame(value = exp(wr_rec_all$log.WR.FI),
-                           se = wr_rec_all$se.FI * exp(wr_rec_all$log.WR.FI),
-                           lower = exp(wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI),
-                           upper = exp(wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI),
-                           p_value =  p_val_FWR,
-                           type  = "wr_FWR")
-  
-  wr_z_NWR <- wr_rec_all$log.WR.naive/wr_rec_all$se.naive
-  p_val_NWR <- 2 * (1 - pnorm(abs(wr_z_NWR)))
-  result_NWR <- data.frame(value = exp(wr_rec_all$log.WR.naive),
-                           se = wr_rec_all$se.naive * exp(wr_rec_all$log.WR.naive),
-                           lower = exp(wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive),
-                           upper = exp(wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive),
-                           p_value =  p_val_NWR,
-                           type  = "wr_NWR")
-  
-  result <- rbind(result_LWR, result_FWR, result_NWR)
-  
-  return(result)
-
-}
-
-
-# Ghosh + Lin - gives error.
-#install.packages("reReg")
-library(reReg)
-gl <- function(data){
-  data$event <- (data$status == 1) * 1
-  data$status_gl <- (data$status == 2) * 1
-  fm <- Recur(time, idx, event, status_gl) ~ arm
-  fit_gl <- reReg(
-    fm,
-    data = data,
-    model = "cox.GL"
-  )
-  
-  s_gl <- summary(fit_gl)
-  gl_coef <- s_gl$coefficients.rec[1,1]
-  gl_se <- s_gl$coefficients.rec[1,2]
-  gl_hr <- exp(gl_coef)
-  gl_ci_l <- exp(gl_coef - 1.96 * gl_se)
-  gl_ci_u <- exp(gl_coef + 1.96 * gl_se)
-  gl_p <- s_gl$coefficients[1,4]
-  #gl_z <- s_gl$coefficients[1,3]
-  
-  result <- data.frame(value = gl_hr,
-                       se = gl_se,
-                       lower = gl_ci_l,
-                       upper = gl_ci_u,
-                       p_value = gl_p,
-                       #z_value = gl_z,
-                       type  = "gl")
-  return(result)
-}
-
-
-
-
