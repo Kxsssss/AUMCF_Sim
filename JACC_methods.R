@@ -6,7 +6,7 @@
 #   value    se   lower    upper   p_value   type
 #   (ratio)       (95% ci       )            (name of the model)
 ##########################################################################
-
+setwd('~/Documents/GitHub/AUMCF_Sim')
 # Cox Proportional Hazards Model (First Event Only)
 library(dplyr)
 library(survival)
@@ -45,28 +45,43 @@ cox_prop <- function(data){
 #install.packages("reReg")
 library(reReg)
 lwyy <- function(data){
-  fit_lwyy <- reReg(
+  
+  fit_lwyy <- tryCatch(reReg(
     Recur(time, idx, status == 1) ~ arm,
     data = data,
     model = "cox.LWYY"
-  )
+  ), error=function(e) NULL)
   
-  s_lwyy <- summary(fit_lwyy)
-  lwyy_coef <- s_lwyy$coefficients.rec[1,1]
-  lwyy_se <- s_lwyy$coefficients.rec[1,2]
-  lwyy_hr <- exp(lwyy_coef)
-  lwyy_ci_l <- exp(lwyy_coef - 1.96 * lwyy_se)
-  lwyy_ci_u <- exp(lwyy_coef + 1.96 * lwyy_se)
-  lwyy_p <- s_lwyy$coefficients[1,4]
-  #lwyy_z <- s_lwyy$coefficients[1,3]
+
+  if(!is.null(fit_lwyy)){
+    s_lwyy <- summary(fit_lwyy)
+    lwyy_coef <- s_lwyy$coefficients.rec[1,1]
+    lwyy_se <- s_lwyy$coefficients.rec[1,2]
+    lwyy_hr <- exp(lwyy_coef)
+    lwyy_ci_l <- exp(lwyy_coef - 1.96 * lwyy_se)
+    lwyy_ci_u <- exp(lwyy_coef + 1.96 * lwyy_se)
+    lwyy_p <- s_lwyy$coefficients[1,4]
+    #lwyy_z <- s_lwyy$coefficients[1,3]
+    
+    result <- data.frame(value = lwyy_hr,
+                         se = lwyy_se,
+                         lower = lwyy_ci_l,
+                         upper = lwyy_ci_u,
+                         p_value = lwyy_p,
+                         #z_value = lwyy_z,
+                         type  = "lwyy")
+  }else{
+    
+    result <- data.frame(value = NA,
+                         se = NA,
+                         lower = NA,
+                         upper = NA,
+                         p_value = NA,
+                         #z_value = lwyy_z,
+                         type  = "lwyy")
+    
+  }     
   
-  result <- data.frame(value = lwyy_hr,
-                       se = lwyy_se,
-                       lower = lwyy_ci_l,
-                       upper = lwyy_ci_u,
-                       p_value = lwyy_p,
-                       #z_value = lwyy_z,
-                       type  = "lwyy")
   return(result)
 }
 
@@ -121,7 +136,7 @@ frailty_ <- function(data){
     formula = Surv(start, time, status) ~ cluster(idx) + arm,
     data = df_frailty,
     recurrentAG = TRUE, 
-    n.knots = 10,
+    n.knots = 7,
     kappa = 1e-2
   )
   
@@ -145,6 +160,7 @@ frailty_ <- function(data){
 
 
 
+# win ratio
 # win ratio
 # Load packages
 library(dplyr)
@@ -215,3 +231,80 @@ wr <- function(data){
                        type  = "wr")
   return(result)
 }
+
+wr_rec <- function(data){
+
+  wr_rec_all <- WRrec(data[, "idx"],
+          data[, "time"],
+          data[, "status"],
+          data[, "arm"],
+          strata = NULL, 
+          naive = TRUE)
+  
+  result_LWR <- data.frame(value = exp(wr_rec_all$log.WR),
+                           se = wr_rec_all$se * exp(wr_rec_all$log.WR),
+                           lower = exp(wr_rec_all$log.WR - 1.96 * wr_rec_all$se),
+                           upper = exp(wr_rec_all$log.WR + 1.96 * wr_rec_all$se),
+                           p_value = wr_rec_all$pval,
+                           type  = "wr_LWR")
+  
+  wr_z_FWR <- wr_rec_all$log.WR.FI/wr_rec_all$se.FI
+  p_val_FWR <- 2 * (1 - pnorm(abs(wr_z_FWR)))
+  result_FWR <- data.frame(value = exp(wr_rec_all$log.WR.FI),
+                           se = wr_rec_all$se.FI * exp(wr_rec_all$log.WR.FI),
+                           lower = exp(wr_rec_all$log.WR.FI - 1.96 * wr_rec_all$se.FI),
+                           upper = exp(wr_rec_all$log.WR.FI + 1.96 * wr_rec_all$se.FI),
+                           p_value =  p_val_FWR,
+                           type  = "wr_FWR")
+  
+  wr_z_NWR <- wr_rec_all$log.WR.naive/wr_rec_all$se.naive
+  p_val_NWR <- 2 * (1 - pnorm(abs(wr_z_NWR)))
+  result_NWR <- data.frame(value = exp(wr_rec_all$log.WR.naive),
+                           se = wr_rec_all$se.naive * exp(wr_rec_all$log.WR.naive),
+                           lower = exp(wr_rec_all$log.WR.naive - 1.96 * wr_rec_all$se.naive),
+                           upper = exp(wr_rec_all$log.WR.naive + 1.96 * wr_rec_all$se.naive),
+                           p_value =  p_val_NWR,
+                           type  = "wr_NWR")
+  
+  result <- rbind(result_LWR, result_FWR, result_NWR)
+  
+  return(result)
+
+}
+
+
+# Ghosh + Lin - gives error.
+#install.packages("reReg")
+library(reReg)
+gl <- function(data){
+  data$event <- (data$status == 1) * 1
+  data$status_gl <- (data$status == 2) * 1
+  fm <- Recur(time, idx, event, status_gl) ~ arm
+  fit_gl <- reReg(
+    fm,
+    data = data,
+    model = "cox.GL"
+  )
+  
+  s_gl <- summary(fit_gl)
+  gl_coef <- s_gl$coefficients.rec[1,1]
+  gl_se <- s_gl$coefficients.rec[1,2]
+  gl_hr <- exp(gl_coef)
+  gl_ci_l <- exp(gl_coef - 1.96 * gl_se)
+  gl_ci_u <- exp(gl_coef + 1.96 * gl_se)
+  gl_p <- s_gl$coefficients[1,4]
+  #gl_z <- s_gl$coefficients[1,3]
+  
+  result <- data.frame(value = gl_hr,
+                       se = gl_se,
+                       lower = gl_ci_l,
+                       upper = gl_ci_u,
+                       p_value = gl_p,
+                       #z_value = gl_z,
+                       type  = "gl")
+  return(result)
+}
+
+
+
+

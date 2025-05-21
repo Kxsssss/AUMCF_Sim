@@ -101,6 +101,7 @@ Loop <- function(i) {
     nb <- nb(data)
     frailty <- frailty_(data)
     wr_rec <- wr_rec(data)
+    wr <- wr(data)
     
     aucmf_diff <- data.frame(
       value = boot@CIs$observed[1],
@@ -111,7 +112,7 @@ Loop <- function(i) {
       type = "aucmf_diff"
     )
     
-    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr_rec, aucmf_diff)
+    results <- rbind(aucmf, coxp, lwyy, nb, frailty, we, wr_rec, aucmf_diff)
     #print(results)
     
     # if need to compare to the adjusted case 
