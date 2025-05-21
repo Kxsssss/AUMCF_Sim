@@ -177,26 +177,26 @@ wr <- function(data){
     mutate(death = if_else(max(status) == 2, 1, 0),
            t2death = max(time)) %>% 
     ungroup() %>%
-    select(idx, arm, death, t2death) %>% 
+    dplyr::select(idx, arm, death, t2death) %>% 
     unique()
   
   data2 <- data %>% 
     filter(status == 1) %>% 
-    select(idx, t2recurr = time) %>%
+    dplyr::select(idx, t2recurr = time) %>%
     mutate(recurr = 1) %>% 
     arrange(idx, t2recurr) %>% 
     group_by(idx) %>% 
     mutate(nrecurr = row_number()) %>% 
     ungroup() %>% 
-    full_join((data1 %>% select(idx)), by = "idx") %>% 
+    full_join((data1 %>% dplyr::select(idx)), by = "idx") %>% 
     complete(idx, nrecurr) %>%
     filter(!is.na(nrecurr)) %>% 
-    full_join((data1 %>% select(idx, t2death)), by = "idx") %>% 
+    full_join((data1 %>% dplyr::select(idx, t2death)), by = "idx") %>% 
     mutate(
       recurr = replace(recurr, is.na(recurr), 0),
       t2recurr = if_else(is.na(t2recurr), t2death, t2recurr)
     ) %>% 
-    select(idx, nrecurr, recurr, t2recurr)
+    dplyr::select(idx, nrecurr, recurr, t2recurr)
   
   
   data3 <- data2 %>% 

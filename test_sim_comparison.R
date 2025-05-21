@@ -112,7 +112,7 @@ Loop <- function(i) {
       type = "aucmf_diff"
     )
     
-    results <- rbind(aucmf, coxp, lwyy, nb, frailty, we, wr_rec, aucmf_diff)
+    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr, wr_rec, aucmf_diff)
     #print(results)
     
     # if need to compare to the adjusted case 
