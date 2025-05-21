@@ -232,6 +232,7 @@ wr <- function(data){
   return(result)
 }
 
+library(WR)
 wr_rec <- function(data){
 
   wr_rec_all <- WRrec(data[, "idx"],
@@ -266,7 +267,25 @@ wr_rec <- function(data){
                            p_value =  p_val_NWR,
                            type  = "wr_NWR")
   
-  result <- rbind(result_LWR, result_FWR, result_NWR)
+  # Calculate the standard win ratio.
+  o <- order(data$idx, data$time)
+  dat_o <- data[o,]
+  dat_oc <-dat_o[!duplicated(dat_o[c("idx","status")]),]
+  
+  wr_rec_std <- WRrec(dat_oc[, "idx"],
+                      dat_oc[, "time"],
+                      dat_oc[, "status"],
+                      dat_oc[, "arm"],
+                      strata = NULL, 
+                      naive = FALSE)
+  result_STD <- data.frame(value = exp(wr_rec_std$log.WR),
+                           se = wr_rec_std$se * exp(wr_rec_std$log.WR),
+                           lower = exp(wr_rec_std$log.WR - 1.96 * wr_rec_std$se),
+                           upper = exp(wr_rec_std$log.WR + 1.96 * wr_rec_std$se),
+                           p_value = wr_rec_std$pval,
+                           type  = "wr_STD")
+  
+  result <- rbind(result_LWR, result_FWR, result_NWR, result_STD)
   
   return(result)
 
@@ -306,5 +325,37 @@ gl <- function(data){
 }
 
 
+
+
+
+library(reReg)
+hh <- function(data){
+  data$event <- (data$status == 1) * 1
+  data$status_gl <- (data$status == 2) * 1
+  fm <- Recur(time, idx, event, status_gl) ~ arm
+  fit_gl <- reReg(
+    fm,
+    data = data,
+    model = "cox.HH"
+  )
+  
+  s_gl <- summary(fit_gl)
+  gl_coef <- s_gl$coefficients.rec[1,1]
+  gl_se <- s_gl$coefficients.rec[1,2]
+  gl_hr <- exp(gl_coef)
+  gl_ci_l <- exp(gl_coef - 1.96 * gl_se)
+  gl_ci_u <- exp(gl_coef + 1.96 * gl_se)
+  gl_p <- s_gl$coefficients[1,4]
+  #gl_z <- s_gl$coefficients[1,3]
+  
+  result <- data.frame(value = gl_hr,
+                       se = gl_se,
+                       lower = gl_ci_l,
+                       upper = gl_ci_u,
+                       p_value = gl_p,
+                       #z_value = gl_z,
+                       type  = "gl")
+  return(result)
+}
 
 
