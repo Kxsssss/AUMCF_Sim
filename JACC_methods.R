@@ -149,6 +149,7 @@ frailty_ <- function(data){
 # Load packages
 library(dplyr)
 library(survival)
+library(WinRatio)
 
 wr <- function(data){
   
