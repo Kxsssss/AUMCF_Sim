@@ -179,9 +179,9 @@ out$rep <- params$reps
 
 # save the summary table
 out_stem <- paste0(params$out)
-if (!dir.exists(out_stem)) {dir.create(out_stem, recursive = TRUE)}
-out_file <- paste0(out_stem, out_suffix)
-saveRDS(object = out, file = out_file)
+#if (!dir.exists(out_stem)) {dir.create(out_stem, recursive = TRUE)}
+#out_file <- paste0(out_stem, out_suffix)
+#saveRDS(object = out, file = out_file)
 
 # save the points estimates
 sim_file <- paste0(out_stem, "sim",
