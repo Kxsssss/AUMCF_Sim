@@ -22,10 +22,10 @@ library(parallel)
 library(dplyr)
 
 source("JACC_methods.R")
-my_reps <- 5
+my_reps <- 5000
 ```
 
-In all scenarios, the recurrent event is generated from a Poisson process with event rate of 1 in group 1 and either 1 or 1.4 in the Null and Non-Null settings, respectively. The terminal event was generated from an exponential distribution with a rate of 0.2 in both groups 1 and 2 and the censoring time was generated independently from an exponential distribution. In this set of simulations, the frailty variance was set to 0.
+In all scenarios, the recurrent event is generated from a Poisson process with event rate of 1 in group 1 and either 1 or 1.4 in the Null and Non-Null settings, respectively. The terminal event was generated from an exponential distribution with a rate of 0.2 in both groups 1 and 2 and the censoring time was generated independently from an exponential distribution. In this set of simulations, the frailty variance was set to 0. Results are based on 5000 replications. 
 
 We varied the time to follow-up (tau = 1, 4) and censoring rate (rate = 0.2, 0.4) for a total of 4 scenarios. 
 
