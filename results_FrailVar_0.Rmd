@@ -1,0 +1,392 @@
+---
+title: "AUMCF Simulations (Zero frailty Variance)"
+output:
+  html_document: default
+  pdf_document: default
+date: "2025-05-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+## R Markdown
+
+```{r}
+setwd('~/Documents/GitHub/AUMCF_Sim')
+rm(list = ls())
+
+# Packages.
+library(optparse)
+library(MCC)
+library(parallel)
+library(dplyr)
+
+#source("../JACC_methods.R")
+source("JACC_methods.R")
+my_reps <- 5000
+```
+
+In all scenarios, the recurrent event is generated frm a Poisson process with event rate of 1 in group 1 and either 1 or 1.4 in the Null and Non-Null settings, respectively. The terminal event was generated from an exponential distribution with a rate of 0.2 in both groups 1 and 2 and the censoring time was generated independently from an exponential distribution. In this set of simulations, the frailty variance was set to 0.
+
+We varied the time to follow-up (tau = 1, 4) and censoring rate (rate = 0.2, 0.4) for a total of 4 scenarios. 
+
+# Scenario A:  Censoring = 0.2, tau = 4 
+
+```{r}
+summarize_results <- function(sim_augmented){
+  cbind(sim_augmented %>%
+          group_by(type) %>%
+          summarise(Pt_est = mean(value, na.rm = TRUE)),
+        sim_augmented %>%
+          group_by(type) %>%
+          summarise(Prob_reject_H0 = mean(p_value < 0.05, na.rm = TRUE)), 
+        sim_augmented %>%
+          group_by(type) %>%
+          summarise(ASE = mean(se, na.rm = TRUE)),
+        sim_augmented %>%
+          group_by(type) %>%
+          summarise(ESE = sd(value, na.rm = TRUE)),
+        sim_augmented %>%
+          group_by(type) %>%
+          summarize(n_NA = sum(is.na(value) | is.na(se) | is.na(p_value)))
+  )[, -c(3,5,7,9)]
+}
+```
+
+## A1: Null 
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 4,
+  censor = 0.2,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.0,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 3,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+
+## A2: Non-null (1.4)
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 4,
+  censor = 0.2,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+\newpage
+
+# Scenario B:  Censoring = 0.4, tau = 4 
+
+## B1: Null 
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 4,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.0,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 3,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+
+## B2: Non-null (1.4)
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 4,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+\newpage
+# Scenario C:  Censoring = 0.2, tau = 1 
+
+## C1: Null 
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 1,
+  censor = 0.2,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.0,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 3,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+
+## C2: Non-null (1.4)
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 1,
+  censor = 0.2,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+\newpage
+
+# Scenario D:  Censoring = 0.2, tau = 1
+
+## D1: Null 
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 1,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.0,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 3,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+
+
+## D2: Non-null (1.4)
+```{r results='hide'}
+params <- list(
+  n = 100,
+  time = 1,
+  censor = 0.4,
+  frailtyVar = 0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
+  BaseEvent1 = 1.0,
+  BetaDeath = 0,
+  BetaEvent = 0,
+  reps = my_reps,
+  adjusted = 0,
+  tvr = 1.2,
+  tvd = 0.2,
+  experiment = 2,
+  out = "Test/"
+)
+# Option parsing.
+t0 <- proc.time()
+# Output stem.
+out_suffix <- paste0(
+  "N", params$n, 
+  "_T", params$time,
+  "_l0", params$BaseEvent0,
+  "_l1", params$BaseEvent1,
+  "_adj", params$adjusted,
+  ".rds"
+)
+
+source('test_sim_comparison.R')
+```
+
+```{r}
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
+```
+

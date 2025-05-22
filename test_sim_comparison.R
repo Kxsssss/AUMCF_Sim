@@ -189,6 +189,8 @@ sim_file <- paste0(out_stem, "sim",
                    "_T", params$time,
                    "_l0", params$BaseEvent0,
                    "_l1", params$BaseEvent1,
+                   "_F", params$frailtyVar,
+                   "_c", params$censor,
                    ".rds")
 saveRDS(object = sim_augmented, file = sim_file)
 

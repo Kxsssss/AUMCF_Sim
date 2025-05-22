@@ -13,12 +13,12 @@ source("JACC_methods.R")
 
 params <- list(
   n = 100,
-  time = 4,
+  time = 1,
   censor = 0.2,
   frailtyVar = 6,
-  BaseDeath0 = 0.5,
-  BaseDeath1 = 0.1,
-  BaseEvent0 = 1.0,
+  BaseDeath0 = 0.2,
+  BaseDeath1 = 0.2,
+  BaseEvent0 = 1.4,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
@@ -43,23 +43,28 @@ out_suffix <- paste0(
 
 source('test_sim_comparison.R')
 
-
-print(dim(sim_augmented)) 
-
-
-print(cbind(sim_augmented %>%
-              group_by(type) %>%
-              summarise(Pt_est = mean(value)),
-  sim_augmented %>%
-              group_by(type) %>%
-              summarise(Prob_reject_H0 = mean(p_value < 0.05)), 
-  sim_augmented %>%
-        group_by(type) %>%
-        summarise(ASE = mean(se)),
+summarize_results <- function(sim_augmented){
+  cbind(sim_augmented %>%
+          group_by(type) %>%
+          summarise(Pt_est = mean(value, na.rm = TRUE)),
         sim_augmented %>%
           group_by(type) %>%
-          summarise(ESE = sd(value))
-        )[, -c(3,5,7)])
+          summarise(Prob_reject_H0 = mean(p_value < 0.05, na.rm = TRUE)), 
+        sim_augmented %>%
+          group_by(type) %>%
+          summarise(ASE = mean(se, na.rm = TRUE)),
+        sim_augmented %>%
+          group_by(type) %>%
+          summarise(ESE = sd(value, na.rm = TRUE)),
+        sim_augmented %>%
+          group_by(type) %>%
+          summarize(n_NA = sum(is.na(value) | is.na(se) | is.na(p_value)))
+  )[, -c(3,5,7,9)]
+}
+
+
+print(dim(sim_augmented)) 
+print(summarize_results(sim_augmented))
 
 
 
