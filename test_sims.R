@@ -11,18 +11,19 @@ library(dplyr)
 #source("../JACC_methods.R")
 source("JACC_methods.R")
 
+#my_reps <- 5000
 params <- list(
-  n = 100,
-  time = 1,
+  n = 200,
+  time = 4,
   censor = 0.2,
   frailtyVar = 6,
   BaseDeath0 = 0.2,
   BaseDeath1 = 0.2,
-  BaseEvent0 = 1.4,
+  BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
   BetaEvent = 0,
-  reps = 500,
+  reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
