@@ -11,9 +11,9 @@ library(dplyr)
 #source("../JACC_methods.R")
 source("JACC_methods.R")
 
-#my_reps <- 5000
+my_reps <- 2000
 params <- list(
-  n = 200,
+  n = 100,
   time = 4,
   censor = 0.2,
   frailtyVar = 6,
