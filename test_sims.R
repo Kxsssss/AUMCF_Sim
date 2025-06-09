@@ -27,7 +27,7 @@ params <- list(
   adjusted = 0,
   tvr = 1.2,
   tvd = 0.2,
-  experiment = 3,
+  experiment = 2,
   out = "Test/"
 )
 # Option parsing.
