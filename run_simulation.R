@@ -110,7 +110,11 @@ SimulateData <- function(params, calc_truth = FALSE){
     }else if(params$experiment == 3){
     
     # Generate for Case 3: Time-varying treatment effect.
-    data <- SimData(params)
+    data <- SimData(n = n,
+                    lambda_cens = params$censor,
+                    lambda_death = params$BaseDeath0,
+                    tau = params$time, 
+                    beta = params$TV_effect)
     
     return(data)
     }
@@ -119,6 +123,7 @@ SimulateData <- function(params, calc_truth = FALSE){
   
   
 # Convenience function to loop across simulation replicates.
+t0 <- proc.time()
 SimulationLoop <- function(i) {
   
   set.seed(i)
@@ -263,8 +268,7 @@ summary_table <- sim_augmented %>%
   group_by(type) %>%
   summarise(
     bias = mean(value) - first(true_value),
-    lower = mean(lower),
-    upper = mean(upper),
+    prob_reject_H0 = mean(p_value < 0.05, na.rm = TRUE),
     cov_p = mean(lower <= first(true_value) & first(true_value) <= upper),
     ase = mean(se),
     ese = sd(value),
@@ -276,6 +280,7 @@ summary_table <- sim_augmented %>%
 summary_table_tv <- summary_table %>%
   mutate(true_value = truth[type])
 out <- data.frame(summary_table_tv)
+print(out)
 
 # Store simulation settings.
 out$n <- params$n
@@ -287,6 +292,8 @@ out_stem <- paste0(params$out)
 
 
 # Save results. 
+if(params$experiment != 3 ){
+  
 sim_file <- paste0(out_stem, "sim",
                    "N", params$n, 
                    "_T", params$time,
@@ -295,6 +302,17 @@ sim_file <- paste0(out_stem, "sim",
                    "_F", params$frailtyVar,
                    "_c", params$censor,
                    ".rds")
+}else{
+  
+  sim_file <- paste0(out_stem, "sim",
+                     "N", params$n, 
+                     "_T", params$time,
+                     "_c", params$censor,
+                     "_TV", params$TV_effect,
+                     ".rds")
+  
+}
+
 saveRDS(object = sim_augmented, file = sim_file)
 
 # -----------------------------------------------------------------------------
