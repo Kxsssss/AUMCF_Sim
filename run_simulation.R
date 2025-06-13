@@ -13,7 +13,23 @@
     ## Case 3a: Under the Null.
     ## Case 3b: Under the Alternative.
 
-SimulateData <- function(params){
+SimulateData <- function(params, calc_truth = FALSE){
+
+  
+  if (!calc_truth){
+    
+    # Keep censoring and n rate if not calculating the true parameter value.
+    censoring_rate <- params$censor
+    n <- params$n
+    
+  }else{
+    
+    # Set censoring rate to 0 and increase n if calculating the true parameter value.
+    censoring_rate <- 0
+    n <- 10000
+    
+  }
+  
   
   if(params$experiment == 1){
     
@@ -33,12 +49,12 @@ SimulateData <- function(params){
       
     }
     
-    covariate <- data.frame(arm = c(rep(0, params$n), rep(1, params$n)),
-                            covar = stats::rnorm(params$n*2))
+    covariate <- data.frame(arm = c(rep(0, n), rep(1, n)),
+                            covar = stats::rnorm(n*2))
     
     data <- MCC::GenData(
-      n = params$n * 2,
-      censoring_rate = params$censor,
+      n = n * 2,
+      censoring_rate = censoring_rate,
       base_death_rate = params$BaseDeath0,
       base_event_rate = params$BaseEvent0,
       beta_death = beta_d,
@@ -56,13 +72,13 @@ SimulateData <- function(params){
       
     beta_d <- params$BetaDeath
     beta_e <- params$BetaEvent
-    covariate0 <- data.frame(arm = rep(0, params$n))
-    covariate1 <- data.frame(arm = rep(1, params$n))
+    covariate0 <- data.frame(arm = rep(0, n))
+    covariate1 <- data.frame(arm = rep(1, n))
     
     # Control arm.
     data0 <- MCC::GenData(
-      n = params$n,
-      censoring_rate = params$censor,
+      n = n,
+      censoring_rate = censoring_rate,
       base_death_rate = params$BaseDeath0,
       base_event_rate = params$BaseEvent0,
       beta_death = beta_d,
@@ -74,8 +90,8 @@ SimulateData <- function(params){
     
     # Treatment arm. 
     data1 <- MCC::GenData(
-      n = params$n,
-      censoring_rate = params$censor,
+      n = n,
+      censoring_rate = censoring_rate,
       base_death_rate = params$BaseDeath1,
       base_event_rate = params$BaseEvent1,
       beta_death = beta_d,
@@ -86,7 +102,7 @@ SimulateData <- function(params){
     )
     
     # Combine the data for control arm and treatment arm.
-    data1$idx <- data1$idx + params$n
+    data1$idx <- data1$idx + n
     data <- rbind(data0, data1)
     
     return(data)
@@ -122,7 +138,7 @@ SimulationLoop <- function(i) {
     wr <- WRstat(data)
     
     # AUMCF (Difference).
-    aucmf <- data.frame(
+    aumcf_diff <- data.frame(
       value = boot@CIs$observed[1],
       se = boot@CIs$se[1],
       lower = boot@CIs$lower[1],
@@ -131,19 +147,18 @@ SimulationLoop <- function(i) {
       type = "aucmf_diff"
     )
     
-    # AUMCF (Ratio.)
-    aucmf <- data.frame(
+    # AUMCF (Ratio).
+    aumcf_ratio <- data.frame(
       value = boot@CIs$observed[2],
       se = boot@CIs$se[2],
       lower = boot@CIs$lower[2],
       upper = boot@CIs$upper[2],
       p_value = boot@Pvals$p[2],
-      #z_value = (boot@CIs$observed[2]-1)/boot@CIs$se[2],
       type = "aucmf_ratio"
     )
     
     # Return results.
-    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr)
+    results <- rbind(aumcf_diff, aumcf_ratio, coxp, lwyy, nb, frailty, wr)
     
     # If needed, run the covariate adjusted analysis. 
     if(params$adjusted == 1){
@@ -178,33 +193,72 @@ output <- lapply(1:params$reps, SimulationLoop)
 sim <- do.call(rbind, output)
 
 # -----------------------------------------------------------------------------
-# Get the true parameter values.  
+# Compute the true parameter values.  
 # -----------------------------------------------------------------------------
 
-if(params$experiment == 1 | (params$experiment == 3 & params$BetaEvent == 0) ){
+method_names <-unique(sim$type)
+
+if(params$experiment == 1 | (params$experiment == 3 & params$TV_effect == 0) ){
   
-  true
-  
+  # Null Case
+  truth_values <- c(0, rep(1, length(method_names) - 1))
+  truth <- setNames(truth_values, method_names)
+
 }else{
   
+  # Non-Null Case
+  big_data <- SimulateData(params, calc_truth = TRUE)
   
+  boot <- try(
+    MCC::CompareAUCs(big_data, tau = params$time)
+  )
   
+  if (class(boot) != "try-error") {
+    
+    # Comparison Methods. 
+    coxp <- coxPHmodel(big_data)
+    lwyy <- LWYYmodel(big_data)
+    nb <- NegBmodel(big_data)
+    frailty <- FRYmodel(big_data)
+    # wr <- WRstat(big_data) NOTE issue here
+    
+    # AUMCF (Difference).
+    aumcf_diff <- data.frame(
+      value = boot@CIs$observed[1],
+      se = boot@CIs$se[1],
+      lower = boot@CIs$lower[1],
+      upper = boot@CIs$upper[1],
+      p_value = boot@Pvals$p[1],
+      type = "aucmf_diff"
+    )
+    
+    # AUMCF (Ratio).
+    aumcf_ratio <- data.frame(
+      value = boot@CIs$observed[2],
+      se = boot@CIs$se[2],
+      lower = boot@CIs$lower[2],
+      upper = boot@CIs$upper[2],
+      p_value = boot@Pvals$p[2],
+      type = "aucmf_ratio"
+    )
+    
+    # Return results.
+    truth_results <- rbind(aumcf_diff, aumcf_ratio, coxp, lwyy, nb, frailty)
+    # Note: Filler for WR methods.
+    truth_values <- c(truth_results[, "value"], rep(1, 4))
+    truth <- setNames(truth_values, method_names)
+  }
+
 }
 
 # -----------------------------------------------------------------------------
 # Summarize the results. 
 # -----------------------------------------------------------------------------
-
-
-tv_lookup <- tibble(
-  type = unique(sim$type),
-  true_value = if_else(type == "aucmf_diff" | type == "aucmf_diff_adj", 
-                       params$tvd, params$tvr)
-)
-
+# Add true value to the simulation.
 sim_augmented <- sim %>%
-  left_join(tv_lookup, by = "type")
+  mutate(true_value = truth[type])
 
+# Calculate summary stats.
 summary_table <- sim_augmented %>%
   group_by(type) %>%
   summarise(
@@ -218,16 +272,17 @@ summary_table <- sim_augmented %>%
     .groups = "drop"
   )
 
+# Save summary stats + true value.
 summary_table_tv <- summary_table %>%
-  left_join(tv_lookup, by = "type")
-
+  mutate(true_value = truth[type])
 out <- data.frame(summary_table_tv)
+
 # Store simulation settings.
 out$n <- params$n
 out$time <- params$time
 out$rep <- params$reps
 
-# save the summary table
+# Output directory. 
 out_stem <- paste0(params$out)
 
 
