@@ -20,7 +20,7 @@ coxPH_model <- function(data){
   fit_coxph <- coxph(Surv(time, status != 0) ~ arm, 
                      data = first_event_data,
                      control = coxph.control(timefix = FALSE)
-                     )
+  )
   
   s_coxp <- summary(fit_coxph)
   coxp_hr <- s_coxp$coefficients[1,2]
@@ -52,7 +52,7 @@ lwyy <- function(data){
     model = "cox.LWYY"
   ), error=function(e) NULL)
   
-
+  
   if(!is.null(fit_lwyy)){
     s_lwyy <- summary(fit_lwyy)
     lwyy_coef <- s_lwyy$coefficients.rec[1,1]
@@ -234,13 +234,13 @@ wr <- function(data){
 
 library(WR)
 wr_rec <- function(data){
-
+  
   wr_rec_all <- WRrec(data[, "idx"],
-          data[, "time"],
-          data[, "status"],
-          data[, "arm"],
-          strata = NULL, 
-          naive = TRUE)
+                      data[, "time"],
+                      data[, "status"],
+                      data[, "arm"],
+                      strata = NULL, 
+                      naive = TRUE)
   
   result_LWR <- data.frame(value = exp(wr_rec_all$log.WR),
                            se = wr_rec_all$se * exp(wr_rec_all$log.WR),
@@ -288,7 +288,7 @@ wr_rec <- function(data){
   result <- rbind(result_LWR, result_FWR, result_NWR, result_STD)
   
   return(result)
-
+  
 }
 
 
