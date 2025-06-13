@@ -57,15 +57,15 @@ summarize_results <- function(sim_augmented){
         sim_augmented %>%
           group_by(type) %>%
           summarise(ESE = sd(value, na.rm = TRUE)),
-        #sim_augmented %>%
-        # group_by(type) %>%
-        # summarise(CP = mean( (lower < 1/1.4) * (upper > 1/1.4), na.rm = TRUE)),
+        sim_augmented %>%
+         group_by(type) %>%
+         summarise(CP = mean( (lower < -1.38) * (upper > -1.38), na.rm = TRUE)),
         sim_augmented %>%
           group_by(type) %>%
           summarize(n_NA = sum(is.na(value) | is.na(se) | is.na(p_value)))
   )[, -c(3,5,7,9)]
 }
-
+#0.67
 
 print(dim(sim_augmented)) 
 print(summarize_results(sim_augmented))
