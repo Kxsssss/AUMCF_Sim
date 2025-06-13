@@ -174,14 +174,15 @@ SimData <- function(
     n,
     lambda_cens = 0.25,
     lambda_death = 0.25,
-    tau = 4.0
+    tau = 4.0, 
+    beta = log(1)
 ) {
   
   # Base event rate.
   lambda_base <- 1.0
   
   # Treatment effect.
-  beta <- log(0.5)
+  # beta <- log(1)
   
   # Break point, after which the rate for the treatment arm switches
   # from lambda_base to lambda_base * exp(beta).
@@ -232,6 +233,6 @@ SimData <- function(
 }
 
 # Simulate data.
-data <- SimData(n = 100)
+data <- SimData(n =100)
 
 

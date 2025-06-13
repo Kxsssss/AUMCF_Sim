@@ -14,7 +14,7 @@ source('data_gen_TV.R')
 
 my_reps <- 500
 params <- list(
-  n = 200,
+  n = 200, #change
   time = 2,
   censor = 0.5,
   frailtyVar = 10,
@@ -23,7 +23,7 @@ params <- list(
   BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
-  BetaEvent = 0,
+  BetaEvent = log(0.5), # change
   reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
@@ -43,7 +43,7 @@ out_suffix <- paste0(
   ".rds"
 )
 
-source('test_sim_comparison.R')
+source('test_sim_comparison_TV.R')
 
 summarize_results <- function(sim_augmented){
   cbind(sim_augmented %>%
@@ -59,8 +59,8 @@ summarize_results <- function(sim_augmented){
           group_by(type) %>%
           summarise(ESE = sd(value, na.rm = TRUE)),
         #sim_augmented %>%
-         # group_by(type) %>%
-          # summarise(CP = mean( (lower < 1/1.4) * (upper > 1/1.4), na.rm = TRUE)),
+        # group_by(type) %>%
+        # summarise(CP = mean( (lower < 1/1.4) * (upper > 1/1.4), na.rm = TRUE)),
         sim_augmented %>%
           group_by(type) %>%
           summarize(n_NA = sum(is.na(value) | is.na(se) | is.na(p_value)))

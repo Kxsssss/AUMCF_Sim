@@ -80,7 +80,7 @@ Gen_data <- function(params){
 
 Loop <- function(i) {
   set.seed(i)
-  data <- Gen_data(params)
+  data <- SimData(n = params$n, beta = params$BetaEvent)
   boot <- try(
     MCC::CompareAUCs(data, tau = params$time)
   )
@@ -101,7 +101,7 @@ Loop <- function(i) {
     nb <- nb(data)
     frailty <- frailty_(data)
     wr_rec <- wr_rec(data)
-   # gl <- gl(data)
+    # gl <- gl(data)
     #wr <- wr(data)
     
     aucmf_diff <- data.frame(
@@ -191,7 +191,6 @@ sim_file <- paste0(out_stem, "sim",
                    "_l1", params$BaseEvent1,
                    "_F", params$frailtyVar,
                    "_c", params$censor,
-                   "_TV",
                    ".rds")
 saveRDS(object = sim_augmented, file = sim_file)
 
