@@ -199,11 +199,22 @@ SimData <- function(
   }
   
   # Rate for control arm.
-  rate_0 <- function(time) {
-    out <- lambda_base
-    return(out)
+  if(beta == 0){ # if under H0, then generate the same way for the control arm. 
+    rate_0 <- function(time) {
+      if (time <= bp) {
+        out <- lambda_base
+      } else {
+        out <- lambda_base * exp(beta)
+      }
+      return(out)
+    }
+  }else{
+    rate_0 <- function(time) {
+      out <- lambda_base
+      return(out)
+    }
   }
-  
+
   # Simulate data for treatment arm.
   data_1 <- SimArm(
     lambda_fn = rate_1,

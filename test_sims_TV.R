@@ -14,8 +14,7 @@ source('data_gen_TV.R')
 
 my_reps <- 500
 params <- list(
-  n = 200, #change
-  time = 2,
+  n = 200, # Only param that matters
   censor = 0.5,
   frailtyVar = 10,
   BaseDeath0 = 0.2,
@@ -23,7 +22,7 @@ params <- list(
   BaseEvent0 = 1.0,
   BaseEvent1 = 1.0,
   BetaDeath = 0,
-  BetaEvent = log(0.5), # change
+  BetaEvent = log(0.5), # Only param that matters
   reps = my_reps,
   adjusted = 0,
   tvr = 1.2,
