@@ -103,8 +103,7 @@ SimulateData <- function(params){
   
   
 # Convenience function to loop across simulation replicates.
-
-Loop <- function(i) {
+SimulationLoop <- function(i) {
   
   set.seed(i)
   data <- SimulateData(params)
@@ -112,8 +111,27 @@ Loop <- function(i) {
   boot <- try(
     MCC::CompareAUCs(data, tau = params$time)
   )
+  
   if (class(boot) != "try-error") {
-    # aucmf
+    
+    # Comparison Methods. 
+    coxp <- coxPHmodel(data)
+    lwyy <- LWYYmodel(data)
+    nb <- NegBmodel(data)
+    frailty <- FRYmodel(data)
+    wr <- WRstat(data)
+    
+    # AUMCF (Difference).
+    aucmf <- data.frame(
+      value = boot@CIs$observed[1],
+      se = boot@CIs$se[1],
+      lower = boot@CIs$lower[1],
+      upper = boot@CIs$upper[1],
+      p_value = boot@Pvals$p[1],
+      type = "aucmf_diff"
+    )
+    
+    # AUMCF (Ratio.)
     aucmf <- data.frame(
       value = boot@CIs$observed[2],
       se = boot@CIs$se[2],
@@ -124,32 +142,17 @@ Loop <- function(i) {
       type = "aucmf_ratio"
     )
     
-    coxp <- cox_prop(data)
-    lwyy <- lwyy(data)
-    nb <- nb(data)
-    frailty <- frailty_(data)
-    wr_rec <- wr_rec(data)
-    # gl <- gl(data)
-    #wr <- wr(data)
+    # Return results.
+    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr)
     
-    aucmf_diff <- data.frame(
-      value = boot@CIs$observed[1],
-      se = boot@CIs$se[1],
-      lower = boot@CIs$lower[1],
-      upper = boot@CIs$upper[1],
-      p_value = boot@Pvals$p[1],
-      type = "aucmf_diff"
-    )
-    
-    results <- rbind(aucmf, coxp, lwyy, nb, frailty, wr_rec, aucmf_diff) #, gl)
-    #print(results)
-    
-    # if need to compare to the adjusted case 
+    # If needed, run the covariate adjusted analysis. 
     if(params$adjusted == 1){
+      
       boot_adj <- try(
         MCC::CompareAUCs(data, tau = params$time, 
                          covars = data %>% dplyr::select(covar))
       )
+      
       if (class(boot_adj) != "try-error") {
         aucmf_diff_adj <- data.frame(
           value = boot_adj@CIs$observed[1],
@@ -161,15 +164,22 @@ Loop <- function(i) {
         )
         results <- rbind(results, aucmf_diff_adj)
       }
+      
     }
+    
     rownames(results) <- 1:nrow(results)
     
     return(results)
   }
 }
 
+
+
+
 output <- lapply(1 : params$reps, Loop) 
 sim <- do.call(rbind, output)
+
+
 # -----------------------------------------------------------------------------
 # Summarize.
 # -----------------------------------------------------------------------------
@@ -207,11 +217,9 @@ out$rep <- params$reps
 
 # save the summary table
 out_stem <- paste0(params$out)
-#if (!dir.exists(out_stem)) {dir.create(out_stem, recursive = TRUE)}
-#out_file <- paste0(out_stem, out_suffix)
-#saveRDS(object = out, file = out_file)
 
-# save the points estimates
+
+# Save results. 
 sim_file <- paste0(out_stem, "sim",
                    "N", params$n, 
                    "_T", params$time,
@@ -223,7 +231,7 @@ sim_file <- paste0(out_stem, "sim",
 saveRDS(object = sim_augmented, file = sim_file)
 
 # -----------------------------------------------------------------------------
-# End
+# Runtime.
 # -----------------------------------------------------------------------------
 t1 <- proc.time()
 cat(t1-t0, "\n")
