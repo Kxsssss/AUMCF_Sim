@@ -173,17 +173,29 @@ SimulationLoop <- function(i) {
   }
 }
 
-
-
-
-output <- lapply(1 : params$reps, Loop) 
+# Run the simulation and format the output. 
+output <- lapply(1:params$reps, SimulationLoop) 
 sim <- do.call(rbind, output)
 
+# -----------------------------------------------------------------------------
+# Get the true parameter values.  
+# -----------------------------------------------------------------------------
+
+if(params$experiment == 1 | (params$experiment == 3 & params$BetaEvent == 0) ){
+  
+  true
+  
+}else{
+  
+  
+  
+}
 
 # -----------------------------------------------------------------------------
-# Summarize.
+# Summarize the results. 
 # -----------------------------------------------------------------------------
-# Summarized simulation results.
+
+
 tv_lookup <- tibble(
   type = unique(sim$type),
   true_value = if_else(type == "aucmf_diff" | type == "aucmf_diff_adj", 
