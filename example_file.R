@@ -15,7 +15,7 @@ source("comparison_methods.R")
 source("data_generation.R")
 
 # Test for Case 1a. 
-my_reps <- 500
+my_reps <- 100
 
 params <- list(
   n = 200, 
